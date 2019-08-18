@@ -3,9 +3,11 @@ import com.google.gson.Gson;
 import java.io.*;
 
 class ConfigManager {
+    // variables for saving the path to the dropbox directory and the browserdriver
     private String driverPath;
     private String dropboxPath;
 
+    // function to save the values into the config file
     void saveConfig(Gson gson, File config) {
         String toJson = gson.toJson(this);
         try {
