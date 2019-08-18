@@ -32,8 +32,8 @@ class Reporter {
         driver.get("https:/olr.ccli.com");
 
         // login to online reporting
-        driver.findElement(By.id("EmailAddress")).sendKeys("your e-mail here");
-        driver.findElement(By.id("Password")).sendKeys("[your password here");
+        driver.findElement(By.id("EmailAddress")).sendKeys("[your e-mail here]");
+        driver.findElement(By.id("Password")).sendKeys("[your password here]");
         driver.findElement(By.id("Sign-In")).click();
 
         // reporting the songs out of the list of CCLI songnumbers
