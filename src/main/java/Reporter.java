@@ -17,7 +17,7 @@ class Reporter {
     void report(ConfigManager configManager, ArrayList<String> ccliList) {
         this.configManager = configManager;
 
-        //starting driver and going to main page
+        // starting driver and going to main page
         try {
             if (this.configManager.getDriverPath().contains("chrome")) {
                 createAndStartChromeService();
@@ -31,42 +31,44 @@ class Reporter {
         }
         driver.get("https:/olr.ccli.com");
 
-        //login to online reporting
+        // login to online reporting
         driver.findElement(By.id("EmailAddress")).sendKeys("your e-mail here");
         driver.findElement(By.id("Password")).sendKeys("[your password here");
         driver.findElement(By.id("Sign-In")).click();
 
-        //reporting the songs out of the list of CCLI songnumbers
+        // reporting the songs out of the list of CCLI songnumbers
         byte count = 0;
         for (String ccli : ccliList){
             try {
-                //search for the CCLI songnumber
+                // search for the CCLI songnumber
                 WebElement searchBar = driver.findElement(By.id("SearchTerm"));
                 searchBar.clear();
                 searchBar.sendKeys(ccli);
                 driver.findElement(By.xpath("//*[@id=\"searchBar\"]/div/div/button")).click();
 
-                //Extracting the internal songnumber and expanding the reporting field
+                // Extracting the internal songnumber and expanding the reporting field
                 String songNumber = driver.findElement(By.className("searchResultsSongSummary")).getAttribute("id");
                 driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
                 songNumber = songNumber.substring(5);
 
-                //setting digital count to 1
+                // setting digital count to 1
                 WebElement digitalCount = driver.findElement(By.id("DigitalCount-" + songNumber));
                 Thread.sleep(750);
                 digitalCount.click();
                 digitalCount.clear();
                 digitalCount.sendKeys("1");
 
-                //submitting the form and removing the CCLI songnumber
+                // submitting the form and removing the CCLI songnumber
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
                 count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
+                // GUI to show error messages that show up while reporting
                 ErrorGUI errorGUI = new ErrorGUI();
                 errorGUI.showNewErrorMessage("Ein Fehler ist aufgetreten:\n\n" + e.getMessage() + "\n\nDas" +
                         " " + (count+1) + ". Lied (CCLI: " + ccli + ") muss vermutlich nicht gemeldet werden.");
             }
 
+            // a little delay for an animation on the website
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
@@ -75,6 +77,8 @@ class Reporter {
         }
         driver.quit();
         service.stop();
+
+        // a little delay so you have a chance to make a screenshot of error windows or read them
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -82,6 +86,8 @@ class Reporter {
         }
         System.exit(0);
     }
+
+    // functions to create browserdrivers and start a browser window
 
     private void createAndStartChromeService() throws IOException {
         service = new ChromeDriverService.Builder()
