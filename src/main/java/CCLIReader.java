@@ -10,10 +10,14 @@ class CCLIReader {
         ArrayList<String> ccliList = new ArrayList<>();
         ArrayList<String> songList = new ArrayList<>();
         File script = new File("");
+
+        // showing GUI to choose a script until the chosen file is one
         while (!(script.getName().endsWith(".col"))) {
             JFileChooser scriptChooser = new JFileChooser();
             scriptChooser.setPreferredSize(new Dimension(900, 700));
             scriptChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+            // setting the starting directory of the GUI to the scripts directory in the dropbox if it exists
             File standardScriptsDirectory = new File(configManager.getDropboxPath() + "/SongBeamer/Scripts");
             if (standardScriptsDirectory.exists()) {
                 scriptChooser.setCurrentDirectory(standardScriptsDirectory);
@@ -25,7 +29,7 @@ class CCLIReader {
             script = scriptChooser.getSelectedFile();
         }
 
-        //read script and extract songs
+        // read script and extract songs
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
             StringBuilder songname = new StringBuilder();
@@ -47,6 +51,7 @@ class CCLIReader {
                 }
             }
 
+            // going through the song files and reading the ccli songnumbers out of them
             for (String song : songList) {
                 try {
                     bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(songsDirectory + song), StandardCharsets.UTF_8));
@@ -68,6 +73,8 @@ class CCLIReader {
         return ccliList;
     }
 
+    // funtion to replace the special characters of a String out of a script
+    // because Sonbeamer can't write these characters into the script or song files
     private String replaceSpecialCharacters(String oldString) {
         String newString = oldString;
         newString = newString.replace("#228", "ä");
