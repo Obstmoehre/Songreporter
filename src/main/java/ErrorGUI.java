@@ -2,6 +2,8 @@ import javax.swing.*;
 
 class ErrorGUI {
 
+    // a little GUI to show important error messages to the user
+
     void showNewErrorMessage(String message) {
         JFrame errorWindow = new JFrame();
 
