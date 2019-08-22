@@ -1,8 +1,10 @@
+package config;
+
 import com.google.gson.Gson;
 
 import java.io.*;
 
-class ConfigManager {
+public class ConfigManager {
     // variables for saving the path to the dropbox directory and the browserdriver
     private String driverPath;
     private String dropboxPath;
@@ -19,11 +21,11 @@ class ConfigManager {
         }
     }
 
-    String getDriverPath() {
+    public String getDriverPath() {
         return this.driverPath;
     }
 
-    String getDropboxPath() {
+    public String getDropboxPath() {
         return this.dropboxPath;
     }
 

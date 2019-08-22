@@ -1,10 +1,12 @@
+package GUI;
+
 import javax.swing.*;
 
-class ErrorGUI {
+public class ErrorGUI {
 
     // a little GUI to show important error messages to the user
 
-    void showNewErrorMessage(String message) {
+    public void showNewErrorMessage(String message) {
         JFrame errorWindow = new JFrame();
 
         JTextArea errorTextArea = new JTextArea(10, 45);

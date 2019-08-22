@@ -1,3 +1,7 @@
+package reporting;
+
+import GUI.ErrorGUI;
+import config.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,12 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-class Reporter {
+public class Reporter {
     private static transient ChromeDriverService service;
     private transient WebDriver driver;
     private ConfigManager configManager;
 
-    void report(ConfigManager configManager, ArrayList<String> ccliList) {
+    public void report(ConfigManager configManager, ArrayList<String> ccliList) {
         this.configManager = configManager;
 
         // starting driver and going to main page

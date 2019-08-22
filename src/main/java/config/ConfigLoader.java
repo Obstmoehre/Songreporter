@@ -1,10 +1,15 @@
+package config;
+
+import GUI.DriverSelector;
+import GUI.DropboxSelector;
+import GUI.ErrorGUI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-class ConfigLoader {
+public class ConfigLoader {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
 
@@ -12,7 +17,7 @@ class ConfigLoader {
     private ConfigManager configManager;
 
     // function to check if the values in the config file are correct
-    ConfigManager load() {
+    public ConfigManager load() {
         // checking if config file exists and creating a new one if not
         try {
             loadConfig();

@@ -1,12 +1,17 @@
+package reporting;
+
+import GUI.ErrorGUI;
+import config.ConfigManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-class CCLIReader {
+public class CCLIReader {
 
-    ArrayList<String> start(ConfigManager configManager) {
+    public ArrayList<String> start(ConfigManager configManager) {
         ArrayList<String> ccliList = new ArrayList<>();
         ArrayList<String> songList = new ArrayList<>();
         File script = new File("");
