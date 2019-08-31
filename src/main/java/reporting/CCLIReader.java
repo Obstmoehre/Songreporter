@@ -81,7 +81,6 @@ public class CCLIReader {
     // funtion to replace the special characters of a String out of a script
     // because Sonbeamer can't write these characters into the script or song files
     private String replaceSpecialCharacters(String oldString) {
-        System.out.println(oldString + "\n");
         String newString = oldString;
         newString = newString.replace("'", "");
         newString = newString.replace("#228", "ä");
@@ -93,12 +92,6 @@ public class CCLIReader {
         newString = newString.replace("#220", "Ü");
         newString = newString.replace("#214", "Ö");
         newString = newString.replace("#39", "'");
-        System.out.println(newString + "\n\n");
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return newString;
     }
 }
