@@ -1,34 +1,29 @@
 import config.ConfigLoader;
 import config.ConfigManager;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import reporting.CCLIReader;
 import reporting.Reporter;
-import server.Server;
 
 import java.util.ArrayList;
+public class Main extends Application {
 
-public class Main {
+
 
     public static void main(String[] args) {
-        //starting Server for the GUI
-        Server server = Server.getInstance();
-        Thread serverThread = new Thread(server);
-        serverThread.start();
+        launch(args);
+    }
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        server.stop = true;
-        System.out.println("stop");
-
-        // loading config File
-        //ConfigManager configManager = new ConfigLoader().load();
-
-        // reading the ccli songnumbers out of the script
-        //ArrayList<String> ccliList = new CCLIReader().start(configManager);
-
-        // open browser and report the given ccli songnumbers
-        //new Reporter().report(configManager, ccliList);
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("fxml/mainGUI.fxml"));
+        primaryStage.setTitle("Songreporter");
+        primaryStage.setScene(new Scene(root, 920, 197));
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
+        primaryStage.show();
     }
 }

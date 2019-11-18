@@ -11,28 +11,9 @@ import java.util.ArrayList;
 
 public class CCLIReader {
 
-    public ArrayList<String> start(ConfigManager configManager) {
+    public ArrayList<String> start(ConfigManager configManager, File script) {
         ArrayList<String> ccliList = new ArrayList<>();
         ArrayList<String> songList = new ArrayList<>();
-        File script = new File("");
-
-        // showing GUI to choose a script until the chosen file is one
-        while (!(script.getName().endsWith(".col"))) {
-            JFileChooser scriptChooser = new JFileChooser();
-            scriptChooser.setPreferredSize(new Dimension(900, 700));
-            scriptChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-            // setting the starting directory of the GUI to the scripts directory in the dropbox if it exists
-            File standardScriptsDirectory = new File(configManager.getDropboxPath() + "/SongBeamer/Scripts");
-            if (standardScriptsDirectory.exists()) {
-                scriptChooser.setCurrentDirectory(standardScriptsDirectory);
-            } else {
-                scriptChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-            }
-            scriptChooser.setDialogTitle("Ablaufplan auswählen");
-            scriptChooser.showDialog(null, "Auswählen");
-            script = scriptChooser.getSelectedFile();
-        }
 
         // read script and extract songs
         try {
@@ -77,6 +58,8 @@ public class CCLIReader {
 
         return ccliList;
     }
+
+
 
     // funtion to replace the special characters of a String out of a script
     // because Sonbeamer can't write these characters into the script or song files

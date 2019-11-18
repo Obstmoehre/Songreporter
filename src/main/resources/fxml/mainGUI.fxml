@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="197.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.MainGUIController">
+    <GridPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      </columnConstraints>
+      <rowConstraints>
+          <RowConstraints maxHeight="201.0" minHeight="10.0" prefHeight="201.0" vgrow="SOMETIMES" />
+      </rowConstraints>
+        <opaqueInsets>
+          <Insets right="1.0" top="1.0" />
+        </opaqueInsets>
+      <children>
+         <Pane fx:id="samplePane" prefHeight="197.0" prefWidth="250.0">
+            <children>
+               <PasswordField fx:id="passwordField" layoutX="26.0" layoutY="92.0" prefHeight="25.0" prefWidth="251.0" promptText="Password" />
+               <TextField fx:id="eMailField" layoutX="26.0" layoutY="60.0" prefHeight="25.0" prefWidth="251.0" promptText="E-Mail" />
+               <CheckBox fx:id="saveCheckBox" layoutX="26.0" layoutY="125.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="149.0" text="Save Credentials" />
+               <Label layoutX="26.0" layoutY="34.0" text="CCLI Credentials:" />
+            </children>
+         </Pane>
+         <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="184.0" prefWidth="200.0" GridPane.columnIndex="1">
+           <items>
+               <Pane prefHeight="200.0" prefWidth="200.0">
+                  <children>
+                     <Button fx:id="dropboxDirectoryButton" layoutX="124.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDropboxButtonClick" text="Choose" />
+                     <Label layoutX="86.0" layoutY="6.0" text="Select Dropbox Directory" />
+                     <Label fx:id="dropboxDirectoryLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" wrapText="true" />
+                     <Label layoutX="131.0" layoutY="48.0" text="Current:" />
+                  </children>
+               </Pane>
+               <Pane prefHeight="62.0" prefWidth="158.0">
+                  <children>
+                     <Button fx:id="driverButton" layoutX="125.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDriverButtonClick" text="Choose" />
+                     <Label layoutX="97.0" layoutY="6.0" text="Select Browser Driver" />
+                     <Label fx:id="driverLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" wrapText="true" />
+                     <Label layoutX="131.0" layoutY="47.0" text="Current:" />
+                  </children>
+               </Pane>
+           </items>
+         </SplitPane>
+         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
+            <children>
+               <Button fx:id="scriptButton" layoutX="118.0" layoutY="31.0" mnemonicParsing="false" onAction="#onScriptButtonClick" text="Select File" />
+               <Label layoutX="109.0" layoutY="14.0" text="Select Flowsheet" />
+               <Label layoutX="131.0" layoutY="67.0" text="Current:" />
+               <Label fx:id="scriptLabel" layoutX="83.0" layoutY="84.0" text="[Current Flowsheet Name]" wrapText="true" />
+               <Button fx:id="reportButton" layoutX="108.0" layoutY="118.0" mnemonicParsing="false" onAction="#onReportButtonClick" prefHeight="42.0" prefWidth="89.0" text="Report" />
+            </children></Pane>
+      </children>
+    </GridPane>
+</AnchorPane>

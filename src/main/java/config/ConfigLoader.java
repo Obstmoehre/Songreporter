@@ -12,9 +12,12 @@ import java.nio.charset.StandardCharsets;
 public class ConfigLoader {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
+    private ConfigLoader INSTANCE;
 
     // Configmanager to save config and access the values
     private ConfigManager configManager;
+
+
 
     // function to check if the values in the config file are correct
     public ConfigManager load() {
@@ -30,10 +33,10 @@ public class ConfigLoader {
         String dropboxPath = configManager.getDropboxPath();
         File testDriverFile;
         File testDropboxFile;
-        if (driverPath.isEmpty()) {
+        if (driverPath == null || driverPath.isEmpty()) {
             driverPath = new DriverSelector().selectDriver();
             configManager.setDriverPath(driverPath);
-            configManager.saveConfig(gson, config);
+            configManager.saveConfig();
             testDriverFile = new File(driverPath);
         } else {
             testDriverFile = new File(driverPath);
@@ -41,14 +44,14 @@ public class ConfigLoader {
         if (!(testDriverFile.exists())) {
             driverPath = new DriverSelector().selectDriver();
             configManager.setDriverPath(driverPath);
-            configManager.saveConfig(gson, config);
+            configManager.saveConfig();
         }
 
         // getting or if needed setting the path to the users dropbox directory
-        if (dropboxPath.isEmpty()) {
+        if (dropboxPath == null || dropboxPath.isEmpty()) {
             dropboxPath = new DropboxSelector().selectDropbox();
             configManager.setDropboxPath(dropboxPath);
-            configManager.saveConfig(gson, config);
+            configManager.saveConfig();
             testDropboxFile = new File(dropboxPath);
         } else {
             testDropboxFile = new File(dropboxPath);
@@ -56,7 +59,7 @@ public class ConfigLoader {
         if (!(testDropboxFile.exists())) {
             dropboxPath = new DropboxSelector().selectDropbox();
             configManager.setDriverPath(dropboxPath);
-            configManager.saveConfig(gson, config);
+            configManager.saveConfig();
         }
 
         return configManager;
@@ -115,6 +118,6 @@ public class ConfigLoader {
         configManager.setDropboxPath(dropboxPath);
 
         // saving the configuration
-        configManager.saveConfig(gson, config);
+        configManager.saveConfig();
     }
 }
