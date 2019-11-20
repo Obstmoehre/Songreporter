@@ -12,13 +12,14 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Reporter {
     private static transient ChromeDriverService service;
     private transient WebDriver driver;
     private ConfigManager configManager;
 
-    public void report(ConfigManager configManager, ArrayList<String> ccliList) {
+    public void report(ConfigManager configManager, ArrayList<String> ccliList, String eMail, String password) {
         this.configManager = configManager;
 
         // starting driver and going to main page
@@ -36,8 +37,8 @@ public class Reporter {
         driver.get("https:/olr.ccli.com");
 
         // login to online reporting
-        driver.findElement(By.id("EmailAddress")).sendKeys("[your e-mail here]");
-        driver.findElement(By.id("Password")).sendKeys("[your password here]");
+        driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
+        driver.findElement(By.id("Password")).sendKeys(password);
         driver.findElement(By.id("Sign-In")).click();
 
         // reporting the songs out of the list of CCLI songnumbers
@@ -63,7 +64,7 @@ public class Reporter {
                 digitalCount.sendKeys("1");
 
                 // submitting the form and removing the CCLI songnumber
-                driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
+                //driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
                 count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
                 // GUI to show error messages that show up while reporting

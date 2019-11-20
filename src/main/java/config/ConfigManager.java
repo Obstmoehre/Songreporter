@@ -11,9 +11,11 @@ public class ConfigManager {
     private transient File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
     private String driverPath;
     private String dropboxPath;
+    private String eMail;
+    private String password;
 
     // function to save the values into the config file
-    public void saveConfig() {
+    void saveConfig() {
         String toJson = this.gson.toJson(this);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.config)));
@@ -49,6 +51,22 @@ public class ConfigManager {
 
     public void setDropboxPath(String dropboxPath) {
         this.dropboxPath = dropboxPath;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEMail() {
+        return eMail;
+    }
+
+    public void setEMail(String eMail) {
+        this.eMail = eMail;
     }
 }
 

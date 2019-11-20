@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane prefHeight="197.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.MainGUIController">
-    <GridPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <GridPane prefHeight="215.0" prefWidth="920.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -22,7 +22,7 @@
             <children>
                <PasswordField fx:id="passwordField" layoutX="26.0" layoutY="92.0" prefHeight="25.0" prefWidth="251.0" promptText="Password" />
                <TextField fx:id="eMailField" layoutX="26.0" layoutY="60.0" prefHeight="25.0" prefWidth="251.0" promptText="E-Mail" />
-               <CheckBox fx:id="saveCheckBox" layoutX="26.0" layoutY="125.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="149.0" text="Save Credentials" />
+               <CheckBox fx:id="saveCheckBox" layoutX="26.0" layoutY="125.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="149.0" selected="true" text="Save Credentials" />
                <Label layoutX="26.0" layoutY="34.0" text="CCLI Credentials:" />
             </children>
          </Pane>
@@ -32,7 +32,7 @@
                   <children>
                      <Button fx:id="dropboxButton" layoutX="124.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDropboxButtonClick" text="Choose" />
                      <Label layoutX="86.0" layoutY="6.0" text="Select Dropbox Directory" />
-                     <Label fx:id="dropboxLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
+                     <Label fx:id="dropboxLabel" layoutX="14.0" layoutY="60.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
                      <Label layoutX="131.0" layoutY="48.0" text="Current:" />
                   </children>
                </Pane>
@@ -40,7 +40,7 @@
                   <children>
                      <Button fx:id="driverButton" layoutX="125.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDriverButtonClick" text="Choose" />
                      <Label layoutX="97.0" layoutY="6.0" text="Select Browser Driver" />
-                     <Label fx:id="driverLabel" layoutX="14.0" layoutY="64.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
+                     <Label fx:id="driverLabel" layoutX="14.0" layoutY="60.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
                      <Label layoutX="131.0" layoutY="47.0" text="Current:" />
                   </children>
                </Pane>

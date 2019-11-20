@@ -4,7 +4,10 @@ import config.ConfigLoader;
 import config.ConfigManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import reporting.CCLIReader;
 import reporting.Reporter;
@@ -33,12 +36,28 @@ public class MainGUIController implements Initializable {
     @FXML
     public Label driverLabel;
 
+    @FXML
+    public TextField eMailField;
+
+    @FXML
+    public PasswordField passwordField;
+
+    @FXML
+    public CheckBox saveCheckBox;
+
     public void onReportButtonClick() {
+        String eMail = eMailField.getText();
+        String password = passwordField.getText();
+        if (saveCheckBox.isSelected()) {
+            configManager.setEMail(eMail);
+            configManager.setPassword(password);
+        }
+
         // reading the ccli songnumbers out of the script
         ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
 
         // open browser and report the given ccli songnumbers
-        new Reporter().report(configManager, ccliList);
+        new Reporter().report(configManager, ccliList, eMail, password);
     }
 
     public void onScriptButtonClick() {
@@ -107,5 +126,12 @@ public class MainGUIController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setLabelText(dropboxLabel, configManager.getDropboxPath());
         setLabelText(driverLabel, configManager.getDriverPath());
+
+        if (configManager.getEMail() != null) {
+            eMailField.setText(configManager.getEMail());
+        }
+        if (configManager.getPassword() != null) {
+            passwordField.setText(configManager.getPassword());
+        }
     }
 }
