@@ -1,10 +1,8 @@
-package reporting;
+package me.jakob.reporting;
 
-import GUI.ErrorGUI;
-import config.ConfigManager;
+import me.jakob.GUI.ErrorGUI;
+import me.jakob.config.ConfigManager;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

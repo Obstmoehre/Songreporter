@@ -32,7 +32,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>Main</mainClass>
+                                    <mainClass>me.jakob.Main</mainClass>
                                 </transformer>
                             </transformers>
                             <artifactSet>

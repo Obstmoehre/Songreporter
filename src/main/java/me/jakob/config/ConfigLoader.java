@@ -1,8 +1,8 @@
-package config;
+package me.jakob.config;
 
-import GUI.DriverSelector;
-import GUI.DropboxSelector;
-import GUI.ErrorGUI;
+import me.jakob.GUI.DriverSelector;
+import me.jakob.GUI.DropboxSelector;
+import me.jakob.GUI.ErrorGUI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -11,17 +11,17 @@ import java.nio.charset.StandardCharsets;
 
 public class ConfigLoader {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
+    private File config = new File(System.getProperty("user.home") + "/Songreporter/me.jakob.config.json");
     private ConfigLoader INSTANCE;
 
-    // Configmanager to save config and access the values
+    // Configmanager to save me.jakob.config and access the values
     private ConfigManager configManager;
 
 
 
-    // function to check if the values in the config file are correct
+    // function to check if the values in the me.jakob.config file are correct
     public ConfigManager load() {
-        // checking if config file exists and creating a new one if not
+        // checking if me.jakob.config file exists and creating a new one if not
         try {
             loadConfig();
         } catch (IOException e) {
@@ -65,9 +65,9 @@ public class ConfigLoader {
         return configManager;
     }
 
-    // function to read the config file and create a new configmanager out of this
+    // function to read the me.jakob.config file and create a new configmanager out of this
     private void loadConfig() throws IOException {
-        // testing if the config.json File exists and creating a new one if not
+        // testing if the me.jakob.config.json File exists and creating a new one if not
         boolean isCreated = true;
         if (!(config.exists())) {
             isCreated = new File(config.getParent()).mkdirs();
@@ -78,7 +78,7 @@ public class ConfigLoader {
             }
 
             newConfig();
-        // testing if the config is empty and creating a new one if it is empty
+        // testing if the me.jakob.config is empty and creating a new one if it is empty
         } else if (!(new BufferedReader(new InputStreamReader(new FileInputStream(config), StandardCharsets.UTF_8)).ready())) {
             newConfig();
         // reading the file if everything is ok with it
@@ -98,14 +98,14 @@ public class ConfigLoader {
             configManager = gson.fromJson(fromJsonBuilder.toString().trim(), ConfigManager.class);
         }
 
-        // showing an error window if something went wrong with the config file
+        // showing an error window if something went wrong with the me.jakob.config file
         if (!isCreated) {
             ErrorGUI jsonErrorGUI = new ErrorGUI();
             jsonErrorGUI.showNewErrorMessage("Es ist ein Fehler mit der json Datei aufgetreten!");
         }
     }
 
-    // function to create a new and complete config file
+    // function to create a new and complete me.jakob.config file
     private void newConfig() {
         // new configmanager to set and save the values
         configManager = new ConfigManager();

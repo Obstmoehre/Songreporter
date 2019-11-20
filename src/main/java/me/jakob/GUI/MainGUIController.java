@@ -1,7 +1,7 @@
-package GUI;
+package me.jakob.GUI;
 
-import config.ConfigLoader;
-import config.ConfigManager;
+import me.jakob.config.ConfigLoader;
+import me.jakob.config.ConfigManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
@@ -9,14 +9,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import reporting.CCLIReader;
-import reporting.Reporter;
+import me.jakob.reporting.CCLIReader;
+import me.jakob.reporting.Reporter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 
 public class MainGUIController implements Initializable {
@@ -24,25 +27,12 @@ public class MainGUIController implements Initializable {
     private static ConfigManager configManager = new ConfigLoader().load();
     private File script;
 
-    @FXML
     public Pane samplePane;
-
-    @FXML
     public Label scriptLabel;
-
-    @FXML
     public Label dropboxLabel;
-
-    @FXML
     public Label driverLabel;
-
-    @FXML
     public TextField eMailField;
-
-    @FXML
     public PasswordField passwordField;
-
-    @FXML
     public CheckBox saveCheckBox;
 
     public void onReportButtonClick() {
@@ -70,7 +60,7 @@ public class MainGUIController implements Initializable {
             scriptChooser.setPreferredSize(new Dimension(900, 700));
             scriptChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-            // setting the starting directory of the GUI to the scripts directory in the dropbox if it exists
+            // setting the starting directory of the me.jakob.GUI to the scripts directory in the dropbox if it exists
             File standardScriptsDirectory = new File(configManager.getDropboxPath() + "/SongBeamer/Scripts");
             if (standardScriptsDirectory.exists()) {
                 scriptChooser.setCurrentDirectory(standardScriptsDirectory);
@@ -107,27 +97,46 @@ public class MainGUIController implements Initializable {
     }
 
     private void setLabelText(Label label, String text) {
-        if (text.length() > 30) {
-            StringBuilder newDriverPathBuilder = new StringBuilder();
+        if (text.length() > 40) {
+            StringBuilder newTextBuilder = new StringBuilder();
             for (int i = text.length() / 2; i < text.length(); i++) {
                 if (text.charAt(i) == '\\') {
-                    newDriverPathBuilder.append(text, 0, i);
-                    newDriverPathBuilder.append("\n");
-                    newDriverPathBuilder.append(text.substring(i));
-                    text = newDriverPathBuilder.toString();
+                    newTextBuilder.append(text, 0, i);
+                    newTextBuilder.append("\n");
+                    newTextBuilder.append(text.substring(i));
+                    text = newTextBuilder.toString();
                     break;
                 }
             }
-            label.setText(text);
-            label.setLayoutX((samplePane.getWidth() - label.getWidth()/2)/2);
+        }
+        label.setText(text);
+        label.setLayoutX((samplePane.getWidth() - label.getWidth())/2);
+    }
+
+    private boolean getLatestScript() {
+        LocalDate date = LocalDate.now();
+        File[] scripts = new File(configManager.getDropboxPath() + "/Songbeamer/Scripts").listFiles();
+        if (scripts != null) {
+            for (File script : scripts) {
+                for (int i = 0; i < 7; i++) {
+                    if (script.getName().contains(date.minusDays(i).toString())) {
+                        this.script = script;
+                    }
+                }
+
+            }
+            return true;
         } else {
-            label.setText(text);
-            label.setLayoutX((samplePane.getWidth() - label.getWidth())/2);
+            return false;
         }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (getLatestScript()) {
+            setLabelText(scriptLabel, script.getName());
+        }
+
         setLabelText(dropboxLabel, configManager.getDropboxPath());
         setLabelText(driverLabel, configManager.getDriverPath());
 
@@ -137,5 +146,11 @@ public class MainGUIController implements Initializable {
         if (configManager.getPassword() != null) {
             passwordField.setText(configManager.getPassword());
         }
+    }
+
+    public void alignLabels() {
+        scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth())/2);
+        dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
+        driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
     }
 }

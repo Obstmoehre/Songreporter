@@ -1,7 +1,7 @@
-package reporting;
+package me.jakob.reporting;
 
-import GUI.ErrorGUI;
-import config.ConfigManager;
+import me.jakob.GUI.ErrorGUI;
+import me.jakob.config.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,7 +12,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Reporter {
     private static transient ChromeDriverService service;
@@ -36,12 +35,12 @@ public class Reporter {
         }
         driver.get("https:/olr.ccli.com");
 
-        // login to online reporting
+        // login to online me.jakob.reporting
         driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
         driver.findElement(By.id("Password")).sendKeys(password);
         driver.findElement(By.id("Sign-In")).click();
 
-        // reporting the songs out of the list of CCLI songnumbers
+        // me.jakob.reporting the songs out of the list of CCLI songnumbers
         byte count = 0;
         for (String ccli : ccliList){
             try {
@@ -51,7 +50,7 @@ public class Reporter {
                 searchBar.sendKeys(ccli);
                 driver.findElement(By.xpath("//*[@id=\"searchBar\"]/div/div/button")).click();
 
-                // Extracting the internal songnumber and expanding the reporting field
+                // Extracting the internal songnumber and expanding the me.jakob.reporting field
                 String songNumber = driver.findElement(By.className("searchResultsSongSummary")).getAttribute("id");
                 driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
                 songNumber = songNumber.substring(5);
@@ -67,7 +66,7 @@ public class Reporter {
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
                 count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
-                // GUI to show error messages that show up while reporting
+                // me.jakob.GUI to show error messages that show up while me.jakob.reporting
                 ErrorGUI errorGUI = new ErrorGUI();
                 errorGUI.showNewErrorMessage("Ein Fehler ist aufgetreten:\n\n" + e.getMessage() + "\n\nDas" +
                         " " + (count+1) + ". Lied (CCLI: " + ccli + ") muss vermutlich nicht gemeldet werden.");

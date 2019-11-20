@@ -1,20 +1,20 @@
-package GUI;
+package me.jakob.GUI;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class DriverSelector {
+public class DropboxSelector {
 
-    public String selectDriver() {
+    public String selectDropbox() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setPreferredSize(new Dimension(900, 700));
-        fileChooser.setDialogTitle("Browser Treiber auswählen");
+        fileChooser.setDialogTitle("Dropbox Ordner auswählen");
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         fileChooser.showDialog(null, "Auswählen");
-        File driver = fileChooser.getSelectedFile();
-        return driver.getPath();
+        File dropbox = fileChooser.getSelectedFile();
+        return dropbox.getPath();
     }
 
 }
