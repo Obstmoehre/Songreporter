@@ -51,6 +51,10 @@ public class MainGUIController implements Initializable {
         if (saveCheckBox.isSelected()) {
             configManager.setEMail(eMail);
             configManager.setPassword(password);
+        } else if (eMailField.getText().equals(configManager.getEMail()) &&
+                passwordField.getText().equals(configManager.getPassword())) {
+            configManager.setEMail("");
+            configManager.setPassword("");
         }
 
         // reading the ccli songnumbers out of the script
