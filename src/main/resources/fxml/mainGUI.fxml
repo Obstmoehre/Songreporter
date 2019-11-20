@@ -30,9 +30,9 @@
            <items>
                <Pane prefHeight="200.0" prefWidth="200.0">
                   <children>
-                     <Button fx:id="dropboxDirectoryButton" layoutX="124.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDropboxButtonClick" text="Choose" />
+                     <Button fx:id="dropboxButton" layoutX="124.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDropboxButtonClick" text="Choose" />
                      <Label layoutX="86.0" layoutY="6.0" text="Select Dropbox Directory" />
-                     <Label fx:id="dropboxDirectoryLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" wrapText="true" />
+                     <Label fx:id="dropboxLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
                      <Label layoutX="131.0" layoutY="48.0" text="Current:" />
                   </children>
                </Pane>
@@ -40,7 +40,7 @@
                   <children>
                      <Button fx:id="driverButton" layoutX="125.0" layoutY="23.0" mnemonicParsing="false" onAction="#onDriverButtonClick" text="Choose" />
                      <Label layoutX="97.0" layoutY="6.0" text="Select Browser Driver" />
-                     <Label fx:id="driverLabel" layoutX="14.0" layoutY="65.0" text="[Current Location]" wrapText="true" />
+                     <Label fx:id="driverLabel" layoutX="14.0" layoutY="64.0" text="[Current Location]" textAlignment="CENTER" wrapText="true" />
                      <Label layoutX="131.0" layoutY="47.0" text="Current:" />
                   </children>
                </Pane>
@@ -51,7 +51,7 @@
                <Button fx:id="scriptButton" layoutX="118.0" layoutY="31.0" mnemonicParsing="false" onAction="#onScriptButtonClick" text="Select File" />
                <Label layoutX="109.0" layoutY="14.0" text="Select Flowsheet" />
                <Label layoutX="131.0" layoutY="67.0" text="Current:" />
-               <Label fx:id="scriptLabel" layoutX="83.0" layoutY="84.0" text="[Current Flowsheet Name]" wrapText="true" />
+               <Label fx:id="scriptLabel" layoutX="83.0" layoutY="84.0" text="[Current Flowsheet Name]" textAlignment="CENTER" wrapText="true" />
                <Button fx:id="reportButton" layoutX="108.0" layoutY="118.0" mnemonicParsing="false" onAction="#onReportButtonClick" prefHeight="42.0" prefWidth="89.0" text="Report" />
             </children></Pane>
       </children>

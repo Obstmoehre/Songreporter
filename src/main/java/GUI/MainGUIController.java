@@ -28,7 +28,7 @@ public class MainGUIController implements Initializable {
     public Label scriptLabel;
 
     @FXML
-    public Label dropboxDirectoryLabel;
+    public Label dropboxLabel;
 
     @FXML
     public Label driverLabel;
@@ -73,39 +73,39 @@ public class MainGUIController implements Initializable {
 
     public void onDropboxButtonClick() {
         String dropboxPath = new DropboxSelector().selectDropbox();
-        dropboxDirectoryLabel.setText(dropboxPath);
-        dropboxDirectoryLabel.setLayoutX((samplePane.getWidth() - dropboxDirectoryLabel.getWidth())/2);
         configManager.setDropboxPath(dropboxPath);
-        configManager.saveConfig();
+        setLabelText(dropboxLabel, dropboxPath);
     }
 
     public void onDriverButtonClick() {
         String driverPath = new DriverSelector().selectDriver();
         configManager.setDriverPath(driverPath);
-        if (driverPath.length() > 30) {
+        setLabelText(driverLabel, driverPath);
+    }
+
+    private void setLabelText(Label label, String text) {
+        if (text.length() > 30) {
             StringBuilder newDriverPathBuilder = new StringBuilder();
-            for (int i = driverPath.length() / 2; i < driverPath.length(); i++) {
-                if (driverPath.charAt(i) == '\\') {
-                    newDriverPathBuilder.append(driverPath, 0, i-1);
+            for (int i = text.length() / 2; i < text.length(); i++) {
+                if (text.charAt(i) == '\\') {
+                    newDriverPathBuilder.append(text, 0, i);
                     newDriverPathBuilder.append("\n");
-                    newDriverPathBuilder.append(driverPath.substring(i-1));
-                    driverPath = newDriverPathBuilder.toString();
+                    newDriverPathBuilder.append(text.substring(i));
+                    text = newDriverPathBuilder.toString();
                     break;
                 }
             }
-            driverLabel.setText(driverPath);
-            driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/4);
+            label.setText(text);
+            label.setLayoutX((samplePane.getWidth() - label.getWidth()/2)/2);
         } else {
-            driverLabel.setText(driverPath);
-            driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
+            label.setText(text);
+            label.setLayoutX((samplePane.getWidth() - label.getWidth())/2);
         }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        dropboxDirectoryLabel.setText(configManager.getDropboxPath());
-        dropboxDirectoryLabel.setLayoutX((samplePane.getWidth() - dropboxDirectoryLabel.getWidth())/2);
-        driverLabel.setText(configManager.getDriverPath());
-        driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
+        setLabelText(dropboxLabel, configManager.getDropboxPath());
+        setLabelText(driverLabel, configManager.getDriverPath());
     }
 }

@@ -1,17 +1,9 @@
-import config.ConfigLoader;
-import config.ConfigManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import reporting.CCLIReader;
-import reporting.Reporter;
-
-import java.util.ArrayList;
 public class Main extends Application {
-
-
 
     public static void main(String[] args) {
         launch(args);
