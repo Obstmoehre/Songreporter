@@ -8,14 +8,14 @@ import java.io.*;
 public class ConfigManager {
     // variables for saving the path to the dropbox directory and the browserdriver
     private transient Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private transient File config = new File(System.getProperty("user.home") + "/Songreporter/me.jakob.config.json");
+    private transient File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
     private String driverPath;
     private String dropboxPath;
     private String eMail;
     private String password;
 
     // function to save the values into the me.jakob.config file
-    void saveConfig() {
+    public void saveConfig() {
         String toJson = this.gson.toJson(this);
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.config)));

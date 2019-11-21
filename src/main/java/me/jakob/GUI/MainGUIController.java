@@ -47,11 +47,13 @@ public class MainGUIController implements Initializable {
             configManager.setPassword("");
         }
 
+        configManager.saveConfig();
+
         // reading the ccli songnumbers out of the script
-        ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
+        //ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
 
         // open browser and report the given ccli songnumbers
-        new Reporter().report(configManager, ccliList, eMail, password);
+        //new Reporter().report(configManager, ccliList, eMail, password);
     }
 
     public void onScriptButtonClick() {
@@ -86,14 +88,18 @@ public class MainGUIController implements Initializable {
 
     public void onDropboxButtonClick() {
         String dropboxPath = new DropboxSelector().selectDropbox();
-        configManager.setDropboxPath(dropboxPath);
         setLabelText(dropboxLabel, dropboxPath);
+
+        configManager.setDropboxPath(dropboxPath);
+        configManager.saveConfig();
     }
 
     public void onDriverButtonClick() {
         String driverPath = new DriverSelector().selectDriver();
-        configManager.setDriverPath(driverPath);
         setLabelText(driverLabel, driverPath);
+
+        configManager.setDriverPath(driverPath);
+        configManager.saveConfig();
     }
 
     private void setLabelText(Label label, String text) {

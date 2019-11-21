@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ConfigLoader {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private File config = new File(System.getProperty("user.home") + "/Songreporter/me.jakob.config.json");
+    private File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
     private ConfigLoader INSTANCE;
 
     // Configmanager to save me.jakob.config and access the values
