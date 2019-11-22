@@ -8,9 +8,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import me.jakob.config.ConfigLoader;
 import me.jakob.config.ConfigManager;
+import me.jakob.reporting.CCLIReader;
+import me.jakob.reporting.Reporter;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
@@ -40,69 +40,56 @@ public class MainGUIController implements Initializable {
             configManager.setEMail("");
             configManager.setPassword("");
         }
-
-        byte[] correctness = configManager.checkValues();
-        if (correctness[0] == 0 && correctness[1] == 0) {
-            configManager.saveConfig();
-            // reading the ccli songnumbers out of the script
-            //ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
-
-            // open browser and report the given ccli songnumbers
-            //new Reporter().report(configManager, ccliList, eMail, password);
-        } else {
-            if (correctness[0] == 1) {
-                driverLabel.setStyle("-fx-text-fill: #eb4034");
-            }
-            if (correctness[1] == 1) {
-                dropboxLabel.setStyle("-fx-text-fill: #eb4034");
-            }
-        }
-
         configManager.saveConfig();
+
+        new Reporter().report(configManager, new CCLIReader().start(configManager, script), eMail, password);
     }
 
     public void onScriptButtonClick() {
+        ScriptSelector scriptSelector = new ScriptSelector();
         while (script == null || !(script.getName().endsWith(".col"))) {
-            JFileChooser scriptChooser = new JFileChooser();
-            scriptChooser.setPreferredSize(new Dimension(900, 700));
-            scriptChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-            // setting the starting directory of the me.jakob.GUI to the scripts directory in the dropbox if it exists
-            File standardScriptsDirectory = new File(configManager.getDropboxPath() + "/SongBeamer/Scripts");
-            if (standardScriptsDirectory.exists()) {
-                scriptChooser.setCurrentDirectory(standardScriptsDirectory);
-            } else {
-                scriptChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-            }
-            scriptChooser.setDialogTitle("Ablaufplan auswählen");
-            scriptChooser.showDialog(null, "Auswählen");
-            if (scriptChooser.getSelectedFile() != null) {
-                script = scriptChooser.getSelectedFile();
-                scriptLabel.setText(script.getName());
+            if ((script = scriptSelector.selectScript(configManager)) != null) {
+                setLabelText(scriptLabel, script.getName());
                 scriptLabel.setStyle("-fx-text-fill: #000000");
                 scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth())/2);
+                if (!script.getName().endsWith(".col")) {
+                    scriptLabel.setStyle("-fx-text-fill: #eb4034");
+                }
             } else {
                 break;
             }
         }
-
-        if (!script.getName().endsWith(".col")) {
-            scriptLabel.setStyle("-fx-text-fill: #eb4034");
-        }
     }
 
     public void onDropboxButtonClick() {
-        String dropboxPath = new DropboxSelector().selectDropbox();
-        setLabelText(dropboxLabel, dropboxPath);
+        String dropboxPath = "";
+        DropboxSelector dropboxSelector = new DropboxSelector();
+        while (dropboxPath.equals("") || !(dropboxPath.endsWith("Dropbox"))) {
+            if (!(dropboxPath = dropboxSelector.selectDropbox()).equals("")) {
+                setLabelText(dropboxLabel, dropboxPath);
+                dropboxLabel.setStyle("-fx-text-fill: #000000");
+                dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
+                if (!dropboxPath.endsWith("Dropbox")) {
+                    dropboxLabel.setStyle("-fx-text-fill: #eb4034");
+                } else {
+                    configManager.setDropboxPath(dropboxPath);
+                    configManager.saveConfig();
+                }
+            } else {
+                break;
+            }
 
-        configManager.setDropboxPath(dropboxPath);
-        configManager.saveConfig();
+        }
+        setLabelText(dropboxLabel, dropboxPath);
     }
 
     public void onDriverButtonClick() {
-        String driverPath = new DriverSelector().selectDriver();
-        setLabelText(driverLabel, driverPath);
-
+        String driverPath;
+        if (!(driverPath = new DriverSelector().selectDriver()).equals("")) {
+            setLabelText(driverLabel, driverPath);
+            driverLabel.setStyle("-fx-text-fill: #000000");
+            driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
+        }
         configManager.setDriverPath(driverPath);
         configManager.saveConfig();
     }
@@ -121,7 +108,6 @@ public class MainGUIController implements Initializable {
             }
         }
         label.setText(text);
-        label.setLayoutX((samplePane.getWidth() - label.getWidth())/2);
     }
 
     private boolean getLatestScript() {
