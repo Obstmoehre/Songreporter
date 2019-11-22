@@ -1,25 +1,19 @@
 package me.jakob.GUI;
 
-import me.jakob.config.ConfigLoader;
-import me.jakob.config.ConfigManager;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import me.jakob.reporting.CCLIReader;
-import me.jakob.reporting.Reporter;
+import me.jakob.config.ConfigLoader;
+import me.jakob.config.ConfigManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.ResourceBundle;
 
 public class MainGUIController implements Initializable {
@@ -47,13 +41,24 @@ public class MainGUIController implements Initializable {
             configManager.setPassword("");
         }
 
+        byte[] correctness = configManager.checkValues();
+        if (correctness[0] == 0 && correctness[1] == 0) {
+            configManager.saveConfig();
+            // reading the ccli songnumbers out of the script
+            //ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
+
+            // open browser and report the given ccli songnumbers
+            //new Reporter().report(configManager, ccliList, eMail, password);
+        } else {
+            if (correctness[0] == 1) {
+                driverLabel.setStyle("-fx-text-fill: #eb4034");
+            }
+            if (correctness[1] == 1) {
+                dropboxLabel.setStyle("-fx-text-fill: #eb4034");
+            }
+        }
+
         configManager.saveConfig();
-
-        // reading the ccli songnumbers out of the script
-        //ArrayList<String> ccliList = new CCLIReader().start(configManager, script);
-
-        // open browser and report the given ccli songnumbers
-        //new Reporter().report(configManager, ccliList, eMail, password);
     }
 
     public void onScriptButtonClick() {

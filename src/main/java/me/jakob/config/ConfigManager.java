@@ -26,12 +26,12 @@ public class ConfigManager {
         }
     }
 
-    byte[] checkValues() {
+    public byte[] checkValues() {
         byte[] valueCorrectness = {1, 1};
         if (this.driverPath != null && new File(this.driverPath).exists()) {
             valueCorrectness[0] = 0;
         }
-        if (this.dropboxPath != null && new File(this.dropboxPath).exists()) {
+        if (this.dropboxPath != null && new File(this.dropboxPath).exists() && this.dropboxPath.endsWith("Dropbox")) {
             valueCorrectness[1] = 0;
         }
         return valueCorrectness;
