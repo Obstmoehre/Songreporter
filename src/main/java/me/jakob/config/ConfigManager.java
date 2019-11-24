@@ -9,6 +9,9 @@ public class ConfigManager {
     // variables for saving the path to the dropbox directory and the browserdriver
     private transient Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private transient File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
+    private transient File script;
+    private transient String tempEMail;
+    private transient String tempPassword;
     private String driverPath;
     private String dropboxPath;
     private String eMail;
@@ -56,5 +59,29 @@ public class ConfigManager {
 
     public void setEMail(String eMail) {
         this.eMail = eMail;
+    }
+
+    public File getScript() {
+        return script;
+    }
+
+    public void setScript(File script) {
+        this.script = script;
+    }
+
+    public String getTempEMail() {
+        return tempEMail;
+    }
+
+    public void setTempEMail(String tempEMail) {
+        this.tempEMail = tempEMail;
+    }
+
+    public String getTempPassword() {
+        return tempPassword;
+    }
+
+    public void setTempPassword(String tempPassword) {
+        this.tempPassword = tempPassword;
     }
 }

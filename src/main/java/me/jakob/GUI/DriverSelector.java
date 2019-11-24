@@ -14,7 +14,11 @@ public class DriverSelector {
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         fileChooser.showDialog(null, "Auswählen");
         File driver = fileChooser.getSelectedFile();
-        return driver.getPath();
+        if (driver == null) {
+            return "";
+        } else {
+            return driver.getPath();
+        }
     }
 
 }

@@ -10,6 +10,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -18,7 +19,7 @@ public class Reporter {
     private transient WebDriver driver;
     private ConfigManager configManager;
 
-    public void report(ConfigManager configManager, ArrayList<String> ccliList, String eMail, String password) {
+    public void report(ConfigManager configManager, ArrayList<String> ccliList) {
         this.configManager = configManager;
 
         // starting driver and going to main page
@@ -36,8 +37,8 @@ public class Reporter {
         driver.get("https:/olr.ccli.com");
 
         // login to online me.jakob.reporting
-        driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
-        driver.findElement(By.id("Password")).sendKeys(password);
+        driver.findElement(By.id("EmailAddress")).sendKeys(configManager.getTempEMail());
+        driver.findElement(By.id("Password")).sendKeys(configManager.getTempPassword());
         driver.findElement(By.id("Sign-In")).click();
 
         // me.jakob.reporting the songs out of the list of CCLI songnumbers
@@ -89,6 +90,11 @@ public class Reporter {
             e.printStackTrace();
         }
         System.exit(0);
+    }
+
+    private void markAsReported() throws IOException {
+        FileWriter fileWriter = new FileWriter(configManager.getScript());
+        fileWriter.append("#reported");
     }
 
     // functions to create browserdrivers and start a browser window

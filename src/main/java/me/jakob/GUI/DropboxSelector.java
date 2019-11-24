@@ -14,7 +14,11 @@ public class DropboxSelector {
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         fileChooser.showDialog(null, "Auswählen");
         File dropbox = fileChooser.getSelectedFile();
-        return dropbox.getPath();
+        if (dropbox == null) {
+            return "";
+        } else {
+            return dropbox.getPath();
+        }
     }
 
 }

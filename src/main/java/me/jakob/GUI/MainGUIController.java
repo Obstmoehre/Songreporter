@@ -26,8 +26,16 @@ public class MainGUIController implements Initializable {
     public Label dropboxLabel;
     public Label driverLabel;
     public TextField eMailField;
-    public PasswordField passwordField;
+    public TextField passwordField;
     public CheckBox saveCheckBox;
+
+    public void showPassword() {
+
+    }
+
+    public void hidePassword() {
+
+    }
 
     public void onReportButtonClick() {
         String eMail = eMailField.getText();
@@ -40,9 +48,11 @@ public class MainGUIController implements Initializable {
             configManager.setEMail("");
             configManager.setPassword("");
         }
+        configManager.setTempEMail(eMail);
+        configManager.setTempPassword(password);
         configManager.saveConfig();
 
-        new Reporter().report(configManager, new CCLIReader().start(configManager, script), eMail, password);
+        new Reporter().report(configManager, new CCLIReader().start(configManager));
     }
 
     public void onScriptButtonClick() {
@@ -78,7 +88,6 @@ public class MainGUIController implements Initializable {
             } else {
                 break;
             }
-
         }
         setLabelText(dropboxLabel, dropboxPath);
     }

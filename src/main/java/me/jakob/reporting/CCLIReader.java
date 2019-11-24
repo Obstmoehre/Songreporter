@@ -9,13 +9,13 @@ import java.util.ArrayList;
 
 public class CCLIReader {
 
-    public ArrayList<String> start(ConfigManager configManager, File script) {
+    public ArrayList<String> start(ConfigManager configManager) {
         ArrayList<String> ccliList = new ArrayList<>();
         ArrayList<String> songList = new ArrayList<>();
 
         // read script and extract songs
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(configManager.getScript().getPath()), StandardCharsets.UTF_8));
             StringBuilder songname = new StringBuilder();
             String songsDirectory = configManager.getDropboxPath() + "/SongBeamer/Songs/";
             while (bufferedReader.ready()) {
