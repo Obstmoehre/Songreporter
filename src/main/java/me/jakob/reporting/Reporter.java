@@ -64,7 +64,7 @@ public class Reporter {
                 digitalCount.sendKeys("1");
 
                 // submitting the form and removing the CCLI songnumber
-                driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
+                //driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
                 count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
                 // me.jakob.GUI to show error messages that show up while me.jakob.reporting
@@ -83,18 +83,18 @@ public class Reporter {
         driver.quit();
         service.stop();
 
-        // a little delay so you have a chance to make a screenshot of error windows or read them
         try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
+            markAsReported();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        System.exit(0);
     }
 
     private void markAsReported() throws IOException {
-        FileWriter fileWriter = new FileWriter(configManager.getScript());
+        FileWriter fileWriter = new FileWriter(configManager.getScript(), true);
         fileWriter.append("#reported");
+        fileWriter.flush();
+        fileWriter.close();
     }
 
     // functions to create browserdrivers and start a browser window

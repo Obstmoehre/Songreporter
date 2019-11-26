@@ -11,7 +11,7 @@ import me.jakob.config.ConfigManager;
 import me.jakob.reporting.CCLIReader;
 import me.jakob.reporting.Reporter;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -26,16 +26,8 @@ public class MainGUIController implements Initializable {
     public Label dropboxLabel;
     public Label driverLabel;
     public TextField eMailField;
-    public TextField passwordField;
+    public PasswordField passwordField;
     public CheckBox saveCheckBox;
-
-    public void showPassword() {
-
-    }
-
-    public void hidePassword() {
-
-    }
 
     public void onReportButtonClick() {
         String eMail = eMailField.getText();
@@ -57,11 +49,13 @@ public class MainGUIController implements Initializable {
 
     public void onScriptButtonClick() {
         ScriptSelector scriptSelector = new ScriptSelector();
+        boolean reported = checkScript();
+
         while (script == null || !(script.getName().endsWith(".col"))) {
             if ((script = scriptSelector.selectScript(configManager)) != null) {
                 setLabelText(scriptLabel, script.getName());
                 scriptLabel.setStyle("-fx-text-fill: #000000");
-                scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth())/2);
+                scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
                 if (!script.getName().endsWith(".col")) {
                     scriptLabel.setStyle("-fx-text-fill: #eb4034");
                 }
@@ -141,6 +135,7 @@ public class MainGUIController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         if (getLatestScript()) {
             setLabelText(scriptLabel, script.getName());
+            configManager.setScript(script);
         }
 
         setLabelText(dropboxLabel, configManager.getDropboxPath());
@@ -158,5 +153,21 @@ public class MainGUIController implements Initializable {
         scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth())/2);
         dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
         driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
+    }
+
+    private boolean checkScript() {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(script));
+            while (bufferedReader.ready()) {
+                if (bufferedReader.readLine().contains("#reported")) {
+                    scriptLabel.setStyle("-fx-text-fill: #58a832");
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 }
