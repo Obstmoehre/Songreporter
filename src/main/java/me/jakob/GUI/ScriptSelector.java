@@ -1,5 +1,7 @@
 package me.jakob.GUI;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import me.jakob.config.ConfigManager;
 
 import javax.swing.*;
@@ -9,9 +11,11 @@ import java.io.File;
 class ScriptSelector {
 
     File selectScript(ConfigManager configmManager) {
+        Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setPreferredSize(new Dimension(900, 700));
+        fileChooser.setPreferredSize(new Dimension((int) screen.getWidth(), (int) screen.getHeight()));
         fileChooser.setDialogTitle("Ablaufplan auswählen");
 
         File standardScriptsDirectory = new File(configmManager.getDropboxPath() + "/SongBeamer/Scripts");

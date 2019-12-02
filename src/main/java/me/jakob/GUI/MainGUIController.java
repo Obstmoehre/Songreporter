@@ -11,7 +11,10 @@ import me.jakob.config.ConfigManager;
 import me.jakob.reporting.CCLIReader;
 import me.jakob.reporting.Reporter;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -49,20 +52,25 @@ public class MainGUIController implements Initializable {
 
     public void onScriptButtonClick() {
         ScriptSelector scriptSelector = new ScriptSelector();
-        boolean reported = checkScript();
+        File script = scriptSelector.selectScript(configManager);
 
-        while (script == null || !(script.getName().endsWith(".col"))) {
-            if ((script = scriptSelector.selectScript(configManager)) != null) {
-                setLabelText(scriptLabel, script.getName());
-                scriptLabel.setStyle("-fx-text-fill: #000000");
-                scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
-                if (!script.getName().endsWith(".col")) {
-                    scriptLabel.setStyle("-fx-text-fill: #eb4034");
-                }
-            } else {
+        while(script != null && !script.getName().endsWith(".col")) {
+            script = scriptSelector.selectScript(configManager);
+            if (script == null) {
                 break;
             }
         }
+
+        if (script != null && !checkScript(script)) {
+            setLabelText(scriptLabel, script.getName());
+            scriptLabel.setStyle("-fx-text-fill: -fx-text-base-color");
+            scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
+        } else if (script != null && script.getName().endsWith(".col") && checkScript(script)) {
+            setLabelText(scriptLabel, script.getName());
+            scriptLabel.setStyle("-fx-text-fill: #58a832");
+            scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
+        }
+
     }
 
     public void onDropboxButtonClick() {
@@ -71,7 +79,7 @@ public class MainGUIController implements Initializable {
         while (dropboxPath.equals("") || !(dropboxPath.endsWith("Dropbox"))) {
             if (!(dropboxPath = dropboxSelector.selectDropbox()).equals("")) {
                 setLabelText(dropboxLabel, dropboxPath);
-                dropboxLabel.setStyle("-fx-text-fill: #000000");
+                dropboxLabel.setStyle("-fx-text-fill: -fx-text-base-color");
                 dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
                 if (!dropboxPath.endsWith("Dropbox")) {
                     dropboxLabel.setStyle("-fx-text-fill: #eb4034");
@@ -90,7 +98,7 @@ public class MainGUIController implements Initializable {
         String driverPath;
         if (!(driverPath = new DriverSelector().selectDriver()).equals("")) {
             setLabelText(driverLabel, driverPath);
-            driverLabel.setStyle("-fx-text-fill: #000000");
+            driverLabel.setStyle("-fx-text-fill: -fx-text-base-color");
             driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
         }
         configManager.setDriverPath(driverPath);
@@ -119,13 +127,13 @@ public class MainGUIController implements Initializable {
         if (scripts != null) {
             for (File script : scripts) {
                 for (int i = 0; i < 7; i++) {
-                    if (script.getName().contains(date.minusDays(i).toString())) {
+                    if (script.getName().contains(date.minusDays(i).toString()) && !checkScript(script)) {
                         this.script = script;
                     }
                 }
 
             }
-            return true;
+            return script != null;
         } else {
             return false;
         }
@@ -155,19 +163,20 @@ public class MainGUIController implements Initializable {
         driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
     }
 
-    private boolean checkScript() {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(script));
-            while (bufferedReader.ready()) {
-                if (bufferedReader.readLine().contains("#reported")) {
-                    scriptLabel.setStyle("-fx-text-fill: #58a832");
-                    return false;
+    private boolean checkScript(File script) {
+        if (script != null) {
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(script));
+                while (bufferedReader.ready()) {
+                    if (bufferedReader.readLine().contains("#reported")) {
+                        return true;
+                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        return true;
+        return false;
     }
 }
