@@ -1,4 +1,4 @@
-package me.jakob.GUI;
+package me.jakob.songreporter.GUI;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
@@ -7,22 +7,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class DropboxSelector {
+public class DriverSelector {
 
-    public String selectDropbox() {
+    public String selectDriver() {
         Rectangle2D screen = Screen.getPrimary().getVisualBounds();
 
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setPreferredSize(new Dimension((int) screen.getWidth(), (int) screen.getHeight()));
-        fileChooser.setDialogTitle("Dropbox Ordner auswählen");
+        fileChooser.setDialogTitle("Browser Treiber auswählen");
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         fileChooser.showDialog(null, "Auswählen");
-        File dropbox = fileChooser.getSelectedFile();
-        if (dropbox == null) {
+        File driver = fileChooser.getSelectedFile();
+        if (driver == null) {
             return "";
         } else {
-            return dropbox.getPath();
+            return driver.getPath();
         }
     }
 

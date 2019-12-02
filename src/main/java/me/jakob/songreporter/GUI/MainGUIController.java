@@ -1,4 +1,4 @@
-package me.jakob.GUI;
+package me.jakob.songreporter.GUI;
 
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
@@ -6,10 +6,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import me.jakob.config.ConfigLoader;
-import me.jakob.config.ConfigManager;
-import me.jakob.reporting.CCLIReader;
-import me.jakob.reporting.Reporter;
+import me.jakob.songreporter.config.ConfigLoader;
+import me.jakob.songreporter.config.ConfigManager;
+import me.jakob.songreporter.reporting.CCLIReader;
+import me.jakob.songreporter.reporting.Reporter;
 
 import java.io.BufferedReader;
 import java.io.File;

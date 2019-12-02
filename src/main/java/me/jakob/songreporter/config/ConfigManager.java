@@ -1,4 +1,4 @@
-package me.jakob.config;
+package me.jakob.songreporter.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,7 +17,7 @@ public class ConfigManager {
     private String eMail;
     private String password;
 
-    // function to save the values into the me.jakob.config file
+    // function to save the values into the me.jakob.songreporter.config file
     public void saveConfig() {
         String toJson = this.gson.toJson(this);
         try {

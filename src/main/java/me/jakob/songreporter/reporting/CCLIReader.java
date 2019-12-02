@@ -1,7 +1,7 @@
-package me.jakob.reporting;
+package me.jakob.songreporter.reporting;
 
-import me.jakob.GUI.ErrorGUI;
-import me.jakob.config.ConfigManager;
+import me.jakob.songreporter.GUI.ErrorGUI;
+import me.jakob.songreporter.config.ConfigManager;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

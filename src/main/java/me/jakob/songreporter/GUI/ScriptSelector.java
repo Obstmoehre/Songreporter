@@ -1,8 +1,8 @@
-package me.jakob.GUI;
+package me.jakob.songreporter.GUI;
 
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
-import me.jakob.config.ConfigManager;
+import me.jakob.songreporter.config.ConfigManager;
 
 import javax.swing.*;
 import java.awt.*;
