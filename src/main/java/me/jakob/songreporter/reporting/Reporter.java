@@ -1,6 +1,5 @@
 package me.jakob.songreporter.reporting;
 
-import me.jakob.songreporter.GUI.ErrorGUI;
 import me.jakob.songreporter.config.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -15,11 +14,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Reporter {
-    private static transient ChromeDriverService service;
-    private transient WebDriver driver;
+    private static ChromeDriverService service;
+    private WebDriver driver;
     private ConfigManager configManager;
+    private File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
 
-    public void report(ConfigManager configManager, ArrayList<String> ccliList) {
+    public void report(ConfigManager configManager, ArrayList<String> ccliList) throws IOException {
+        FileWriter errorWriter = new FileWriter(errorLog, true);
         this.configManager = configManager;
 
         // starting driver and going to main page
@@ -32,11 +33,17 @@ public class Reporter {
                 createFirefoxDriver();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            if (!errorLog.exists()) {
+                    errorLog.createNewFile();
+            }
+            errorWriter.write("Error in initialization:\n" + e.getMessage() + "\n");
+            errorWriter.flush();
+            errorWriter.close();
         }
         driver.get("https:/olr.ccli.com");
 
         // login to online me.jakob.songreporter.reporting
+
         driver.findElement(By.id("EmailAddress")).sendKeys(configManager.getTempEMail());
         driver.findElement(By.id("Password")).sendKeys(configManager.getTempPassword());
         driver.findElement(By.id("Sign-In")).click();
@@ -67,10 +74,13 @@ public class Reporter {
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
                 count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
-                // me.jakob.songreporter.GUI to show error messages that show up while me.jakob.songreporter.reporting
-                ErrorGUI errorGUI = new ErrorGUI();
-                errorGUI.showNewErrorMessage("Ein Fehler ist aufgetreten:\n\n" + e.getMessage() + "\n\nDas" +
-                        " " + (count+1) + ". Lied (CCLI: " + ccli + ") muss vermutlich nicht gemeldet werden.");
+                if (!errorLog.exists()) {
+                    errorLog.createNewFile();
+                }
+                errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n");
+                errorWriter.flush();
+                errorWriter.close();
+                e.printStackTrace();
             }
 
             // a little delay for an animation on the website
@@ -96,8 +106,6 @@ public class Reporter {
         fileWriter.flush();
         fileWriter.close();
     }
-
-    // functions to create browserdrivers and start a browser window
 
     private void createAndStartChromeService() throws IOException {
         service = new ChromeDriverService.Builder()

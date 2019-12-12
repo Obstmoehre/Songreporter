@@ -47,7 +47,11 @@ public class MainGUIController implements Initializable {
         configManager.setTempPassword(password);
         configManager.saveConfig();
 
-        new Reporter().report(configManager, new CCLIReader().start(configManager));
+        try {
+            new Reporter().report(configManager, new CCLIReader().start(configManager));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onScriptButtonClick() {
@@ -65,12 +69,13 @@ public class MainGUIController implements Initializable {
             setLabelText(scriptLabel, script.getName());
             scriptLabel.setStyle("-fx-text-fill: -fx-text-base-color");
             scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
+            configManager.setScript(script);
         } else if (script != null && script.getName().endsWith(".col") && checkScript(script)) {
             setLabelText(scriptLabel, script.getName());
             scriptLabel.setStyle("-fx-text-fill: #58a832");
             scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
+            configManager.setScript(script);
         }
-
     }
 
     public void onDropboxButtonClick() {
