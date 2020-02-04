@@ -46,7 +46,7 @@ public class Reporter {
 
         driver.findElement(By.id("EmailAddress")).sendKeys(configManager.getTempEMail());
         driver.findElement(By.id("Password")).sendKeys(configManager.getTempPassword());
-        driver.findElement(By.id("Sign-In")).click();
+        driver.findElement(By.id("sign-in")).click();
 
         // me.jakob.songreporter.reporting the songs out of the list of CCLI songnumbers
         byte count = 0;
