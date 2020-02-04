@@ -11,6 +11,9 @@ import me.jakob.songreporter.config.ConfigManager;
 import me.jakob.songreporter.reporting.CCLIReader;
 import me.jakob.songreporter.reporting.Reporter;
 
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -110,22 +113,6 @@ public class MainGUIController implements Initializable {
         configManager.saveConfig();
     }
 
-    private void setLabelText(Label label, String text) {
-        if (text.length() > 40) {
-            StringBuilder newTextBuilder = new StringBuilder();
-            for (int i = text.length() / 2; i < text.length(); i++) {
-                if (text.charAt(i) == '\\') {
-                    newTextBuilder.append(text, 0, i);
-                    newTextBuilder.append("\n");
-                    newTextBuilder.append(text.substring(i));
-                    text = newTextBuilder.toString();
-                    break;
-                }
-            }
-        }
-        label.setText(text);
-    }
-
     private boolean getLatestScript() {
         LocalDate date = LocalDate.now();
         File[] scripts = new File(configManager.getDropboxPath() + "/Songbeamer/Scripts").listFiles();
@@ -163,9 +150,35 @@ public class MainGUIController implements Initializable {
     }
 
     public void alignLabels() {
-        scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth())/2);
-        dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
-        driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
+        AffineTransform affinetransform = new AffineTransform();
+        FontRenderContext frc = new FontRenderContext(affinetransform,true,true);
+        Font font = new Font("Tahoma", Font.PLAIN, 12);
+
+        if (script != null) {
+            scriptLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(script.getName(), frc).getWidth()))/2);
+        }
+        if (configManager.getDropboxPath() != null) {
+            dropboxLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(configManager.getDropboxPath(), frc).getWidth())) / 2);
+        }
+        if (configManager.getDriverPath() != null) {
+            driverLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(configManager.getDriverPath().substring(0, configManager.getDriverPath().indexOf("d")), frc).getWidth())) / 2);
+        }
+    }
+
+    private void setLabelText(Label label, String text) {
+        if (text.length() > 40) {
+            StringBuilder newTextBuilder = new StringBuilder();
+            for (int i = text.length() / 2; i < text.length(); i++) {
+                if (text.charAt(i) == '\\') {
+                    newTextBuilder.append(text, 0, i);
+                    newTextBuilder.append("\n");
+                    newTextBuilder.append(text.substring(i));
+                    text = newTextBuilder.toString();
+                    break;
+                }
+            }
+        }
+        label.setText(text);
     }
 
     private boolean checkScript(File script) {
