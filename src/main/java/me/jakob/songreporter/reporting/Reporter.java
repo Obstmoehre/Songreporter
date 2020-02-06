@@ -36,7 +36,7 @@ public class Reporter {
             if (!errorLog.exists()) {
                     errorLog.createNewFile();
             }
-            errorWriter.write("Error in initialization:\n" + e.getMessage() + "\n");
+            errorWriter.write("Error in initialization:\n" + e.getMessage() + "\n\n");
             errorWriter.flush();
             errorWriter.close();
         }
@@ -77,7 +77,7 @@ public class Reporter {
                 if (!errorLog.exists()) {
                     errorLog.createNewFile();
                 }
-                errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n");
+                errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n\n");
                 errorWriter.flush();
                 errorWriter.close();
                 e.printStackTrace();
@@ -90,6 +90,7 @@ public class Reporter {
                 e.printStackTrace();
             }
         }
+        driver.findElement(By.xpath("//*[@id=\"searchResultFooter\"]/div/ul/li[5]/a")).click();
         driver.quit();
         service.stop();
 
