@@ -21,7 +21,7 @@ public class Songreporter extends Application {
         MainGUIController mainGUIController = fxmlLoader.getController();
 
         primaryStage.setTitle("Songreporter");
-        primaryStage.setScene(new Scene(root, 920, 197));
+        primaryStage.setScene(new Scene(root, 920, 192));
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
