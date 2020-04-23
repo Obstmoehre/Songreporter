@@ -1,19 +1,13 @@
 package me.jakob.songreporter.GUI;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.*;
 import me.jakob.songreporter.config.ConfigLoader;
 import me.jakob.songreporter.config.ConfigManager;
 import me.jakob.songreporter.reporting.CCLIReader;
 import me.jakob.songreporter.reporting.Reporter;
 
-import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -24,13 +18,12 @@ import java.util.ResourceBundle;
 
 public class MainGUIController implements Initializable {
 
-    private static ConfigManager configManager = new ConfigLoader().load();
+    private static final ConfigManager configManager = new ConfigLoader().load();
     private File script;
 
-    public Pane samplePane;
+    public MenuButton browserButton;
     public Label scriptLabel;
     public Label dropboxLabel;
-    public Label driverLabel;
     public TextField eMailField;
     public PasswordField passwordField;
     public CheckBox saveCheckBox;
@@ -55,6 +48,10 @@ public class MainGUIController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        if (checkScript(configManager.getScript())) {
+            scriptLabel.setStyle("-fx-text-fill: #58a832");
+        }
     }
 
     public void onScriptButtonClick() {
@@ -71,12 +68,10 @@ public class MainGUIController implements Initializable {
         if (script != null && !checkScript(script)) {
             setLabelText(scriptLabel, script.getName());
             scriptLabel.setStyle("-fx-text-fill: -fx-text-base-color");
-            scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
             configManager.setScript(script);
         } else if (script != null && script.getName().endsWith(".col") && checkScript(script)) {
             setLabelText(scriptLabel, script.getName());
             scriptLabel.setStyle("-fx-text-fill: #58a832");
-            scriptLabel.setLayoutX((samplePane.getWidth() - scriptLabel.getWidth()) / 2);
             configManager.setScript(script);
         }
     }
@@ -88,7 +83,6 @@ public class MainGUIController implements Initializable {
             if (!(dropboxPath = dropboxSelector.selectDropbox()).equals("")) {
                 setLabelText(dropboxLabel, dropboxPath);
                 dropboxLabel.setStyle("-fx-text-fill: -fx-text-base-color");
-                dropboxLabel.setLayoutX((samplePane.getWidth() - dropboxLabel.getWidth())/2);
                 if (!dropboxPath.endsWith("Dropbox")) {
                     dropboxLabel.setStyle("-fx-text-fill: #eb4034");
                 } else {
@@ -102,15 +96,8 @@ public class MainGUIController implements Initializable {
         setLabelText(dropboxLabel, dropboxPath);
     }
 
-    public void onDriverButtonClick() {
-        String driverPath;
-        if (!(driverPath = new DriverSelector().selectDriver()).equals("")) {
-            setLabelText(driverLabel, driverPath);
-            driverLabel.setStyle("-fx-text-fill: -fx-text-base-color");
-            driverLabel.setLayoutX((samplePane.getWidth() - driverLabel.getWidth())/2);
-        }
-        configManager.setDriverPath(driverPath);
-        configManager.saveConfig();
+    public void onBrowserButtonClick() {
+
     }
 
     private boolean getLatestScript() {
@@ -133,13 +120,17 @@ public class MainGUIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        addBrowserButtonListeners();
+        if (!configManager.getBrowser().equals("")) {
+            browserButton.setText(configManager.getBrowser());
+        }
+
         if (getLatestScript()) {
             setLabelText(scriptLabel, script.getName());
             configManager.setScript(script);
         }
 
         setLabelText(dropboxLabel, configManager.getDropboxPath());
-        setLabelText(driverLabel, configManager.getDriverPath());
 
         if (configManager.getEMail() != null) {
             eMailField.setText(configManager.getEMail());
@@ -149,20 +140,20 @@ public class MainGUIController implements Initializable {
         }
     }
 
-    public void alignLabels() {
-        AffineTransform affinetransform = new AffineTransform();
-        FontRenderContext frc = new FontRenderContext(affinetransform,true,true);
-        Font font = new Font("Tahoma", Font.PLAIN, 12);
-
-        if (script != null) {
-            scriptLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(script.getName(), frc).getWidth()))/2);
-        }
-        if (configManager.getDropboxPath() != null) {
-            dropboxLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(configManager.getDropboxPath(), frc).getWidth())) / 2);
-        }
-        if (configManager.getDriverPath() != null) {
-            driverLabel.setLayoutX((samplePane.getWidth() - (font.getStringBounds(configManager.getDriverPath().substring(0, configManager.getDriverPath().indexOf("d")), frc).getWidth())) / 2);
-        }
+    private void addBrowserButtonListeners() {
+        ObservableList<MenuItem> menuItems = browserButton.getItems();
+        menuItems.get(0).setOnAction(a -> {
+            browserButton.setText("Chrome");
+            configManager.setBrowser("Chrome");
+        });
+        menuItems.get(1).setOnAction(a -> {
+            browserButton.setText("Firefox");
+            configManager.setBrowser("Firefox");
+        });
+        menuItems.get(2).setOnAction(a -> {
+            browserButton.setText("Opera");
+            configManager.setBrowser("Opera");
+        });
     }
 
     private void setLabelText(Label label, String text) {

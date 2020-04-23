@@ -10,8 +10,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class ConfigLoader {
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
 
     // Configmanager to save me.jakob.songreporter.config and access the values
     private ConfigManager configManager;
@@ -28,23 +28,9 @@ public class ConfigLoader {
         }
 
         // getting or if needed setting the path to the browserdriver
-        String driverPath = configManager.getDriverPath();
         String dropboxPath = configManager.getDropboxPath();
         File testDriverFile;
         File testDropboxFile;
-        if (driverPath == null || driverPath.isEmpty()) {
-            driverPath = new DriverSelector().selectDriver();
-            configManager.setDriverPath(driverPath);
-            configManager.saveConfig();
-            testDriverFile = new File(driverPath);
-        } else {
-            testDriverFile = new File(driverPath);
-        }
-        if (!(testDriverFile.exists())) {
-            driverPath = new DriverSelector().selectDriver();
-            configManager.setDriverPath(driverPath);
-            configManager.saveConfig();
-        }
 
         // getting or if needed setting the path to the users dropbox directory
         if (dropboxPath == null || dropboxPath.isEmpty()) {
@@ -57,7 +43,7 @@ public class ConfigLoader {
         }
         if (!(testDropboxFile.exists())) {
             dropboxPath = new DropboxSelector().selectDropbox();
-            configManager.setDriverPath(dropboxPath);
+            configManager.setBrowser(dropboxPath);
             configManager.saveConfig();
         }
 
@@ -111,7 +97,7 @@ public class ConfigLoader {
 
         // setting the values
         String driverPath = new DriverSelector().selectDriver();
-        configManager.setDriverPath(driverPath);
+        configManager.setBrowser(driverPath);
 
         String dropboxPath = new DropboxSelector().selectDropbox();
         configManager.setDropboxPath(dropboxPath);

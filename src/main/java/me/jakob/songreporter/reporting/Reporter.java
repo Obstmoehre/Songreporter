@@ -1,44 +1,50 @@
 package me.jakob.songreporter.reporting;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import me.jakob.songreporter.config.ConfigManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.opera.OperaDriver;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Reporter {
     private static ChromeDriverService service;
     private WebDriver driver;
     private ConfigManager configManager;
-    private File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
+    private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
 
     public void report(ConfigManager configManager, ArrayList<String> ccliList) throws IOException {
         FileWriter errorWriter = new FileWriter(errorLog, true);
         this.configManager = configManager;
 
         // starting driver and going to main page
-        try {
-            if (this.configManager.getDriverPath().contains("chrome")) {
-                createAndStartChromeService();
-                createChromeDriver();
-            } else if (this.configManager.getDriverPath().contains("gecko")) {
-                createAndStartFirefoxService();
-                createFirefoxDriver();
-            }
-        } catch (IOException e) {
-            if (!errorLog.exists()) {
-                    errorLog.createNewFile();
-            }
-            errorWriter.write("Error in initialization:\n" + e.getMessage() + "\n\n");
-            errorWriter.flush();
-            errorWriter.close();
+        switch(configManager.getBrowser()) {
+            case "Chrome":
+                WebDriverManager.chromedriver().setup();
+                driver = new ChromeDriver();
+                break;
+            case "Firefox":
+                WebDriverManager.firefoxdriver().setup();
+                driver = new FirefoxDriver();
+                break;
+            case "Opera":
+                WebDriverManager.operadriver().setup();
+                driver = new OperaDriver();
+                break;
         }
         driver.get("https:/olr.ccli.com");
 
@@ -48,7 +54,7 @@ public class Reporter {
         driver.findElement(By.id("Password")).sendKeys(configManager.getTempPassword());
         driver.findElement(By.id("sign-in")).click();
 
-        // me.jakob.songreporter.reporting the songs out of the list of CCLI songnumbers
+        // reporting the songs out of the list of CCLI songnumbers
         byte count = 0;
         for (String ccli : ccliList){
             try {
@@ -58,7 +64,7 @@ public class Reporter {
                 searchBar.sendKeys(ccli);
                 driver.findElement(By.xpath("//*[@id=\"searchBar\"]/div/div/button")).click();
 
-                // Extracting the internal songnumber and expanding the me.jakob.songreporter.reporting field
+                // Extracting the internal songnumber and expanding the reporting field
                 String songNumber = driver.findElement(By.className("searchResultsSongSummary")).getAttribute("id");
                 driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
                 songNumber = songNumber.substring(5);
@@ -79,7 +85,6 @@ public class Reporter {
                 }
                 errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n\n");
                 errorWriter.flush();
-                errorWriter.close();
                 e.printStackTrace();
             }
 
@@ -90,9 +95,14 @@ public class Reporter {
                 e.printStackTrace();
             }
         }
+        errorWriter.close();
         driver.findElement(By.xpath("//*[@id=\"searchResultFooter\"]/div/ul/li[5]/a")).click();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         driver.quit();
-        service.stop();
 
         try {
             markAsReported();
@@ -106,31 +116,5 @@ public class Reporter {
         fileWriter.append("#reported");
         fileWriter.flush();
         fileWriter.close();
-    }
-
-    private void createAndStartChromeService() throws IOException {
-        service = new ChromeDriverService.Builder()
-                .usingDriverExecutable(new File(this.configManager.getDriverPath()))
-                .usingAnyFreePort()
-                .build();
-        service.start();
-    }
-
-    private void createAndStartFirefoxService() throws IOException {
-        service = new ChromeDriverService.Builder()
-                .usingDriverExecutable(new File(this.configManager.getDriverPath()))
-                .usingAnyFreePort()
-                .build();
-        service.start();
-    }
-
-    private void createChromeDriver() {
-        driver = new RemoteWebDriver(service.getUrl(),
-                DesiredCapabilities.chrome());
-    }
-
-    private void createFirefoxDriver() {
-        driver = new RemoteWebDriver(service.getUrl(),
-                DesiredCapabilities.firefox());
     }
 }

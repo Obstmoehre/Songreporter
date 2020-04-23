@@ -17,7 +17,7 @@
         <opaqueInsets>
             <Insets right="1.0" top="1.0" />
         </opaqueInsets>
-        <Pane fx:id="samplePane" prefHeight="197.0" prefWidth="250.0">
+        <Pane prefHeight="197.0" prefWidth="250.0">
             <Label layoutX="26.0" layoutY="34.0" text="CCLI Credentials:" />
             <TextField fx:id="eMailField" layoutX="26.0" layoutY="60.0" prefHeight="25.0" prefWidth="251.0" promptText="E-Mail" />
             <PasswordField fx:id="passwordField" layoutX="26.0" layoutY="92.0" prefHeight="25.0" prefWidth="251.0" promptText="Password" />
@@ -47,27 +47,16 @@
                </BorderPane>
             </children>
          </GridPane>
-         <GridPane>
-           <columnConstraints>
-             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-           </columnConstraints>
-           <rowConstraints>
-             <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="54.0" vgrow="SOMETIMES" />
-             <RowConstraints maxHeight="43.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-           </rowConstraints>
-            <children>
-                  <Pane prefHeight="62.0" prefWidth="158.0">
-                      <Button layoutX="125.0" layoutY="19.0" mnemonicParsing="false" onAction="#onDriverButtonClick" text="Choose" />
-                      <Label layoutX="97.0" layoutY="2.0" text="Select Browser Driver" />
-                      <Label layoutX="131.0" layoutY="44.0" text="Current:" />
-                  </Pane>
-               <BorderPane prefHeight="32.0" prefWidth="305.0" GridPane.rowIndex="1">
-                  <center>
-                         <Label fx:id="driverLabel" text="[Current Location]" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
-                  </center>
-               </BorderPane>
-            </children>
-         </GridPane>
+            <Pane prefHeight="62.0" prefWidth="158.0">
+                <Label layoutX="90.0" layoutY="21.0" text="Select installed Browser" />
+            <MenuButton fx:id="browserButton" layoutX="115.0" layoutY="38.0" mnemonicParsing="false" onAction="#onBrowserButtonClick" prefHeight="25.0" prefWidth="75.0" text="Browser">
+                <items>
+                    <MenuItem mnemonicParsing="false" text="Chrome" />
+                    <MenuItem mnemonicParsing="false" text="Firefox" />
+                    <MenuItem mnemonicParsing="false" text="Opera" />
+              </items>
+            </MenuButton>
+            </Pane>
         </SplitPane>
       <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnIndex="2">
          <items>

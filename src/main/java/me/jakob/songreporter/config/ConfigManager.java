@@ -7,12 +7,12 @@ import java.io.*;
 
 public class ConfigManager {
     // variables for saving the path to the dropbox directory and the browserdriver
-    private transient Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private transient File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
+    private final transient Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final transient File config = new File(System.getProperty("user.home") + "/Songreporter/config.json");
     private transient File script;
     private transient String tempEMail;
     private transient String tempPassword;
-    private String driverPath;
+    private String browser;
     private String dropboxPath;
     private String eMail;
     private String password;
@@ -29,16 +29,16 @@ public class ConfigManager {
         }
     }
 
-    public String getDriverPath() {
-        return this.driverPath;
+    public String getBrowser() {
+        return this.browser;
     }
 
     public String getDropboxPath() {
         return this.dropboxPath;
     }
 
-    public void setDriverPath(String driverPath) {
-        this.driverPath = driverPath;
+    public void setBrowser(String browser) {
+        this.browser = browser;
     }
 
     public void setDropboxPath(String dropboxPath) {
