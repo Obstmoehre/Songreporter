@@ -37,13 +37,7 @@
                             </transformers>
                             <artifactSet>
                                 <includes>
-                                    <include>org.seleniumhq.selenium:*</include>
-                                    <include>com.google.code.gson:*</include>
-                                    <include>com.google.guava:*</include>
-                                    <include>org.apache.commons:*</include>
-                                    <include>com.squareup.okhttp3:*</include>
-                                    <include>com.squareup.okio:*</include>
-                                    <include>org.jsoup.*</include>
+                                    <include>**</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

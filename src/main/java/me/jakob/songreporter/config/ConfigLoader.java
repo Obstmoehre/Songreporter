@@ -29,7 +29,6 @@ public class ConfigLoader {
 
         // getting or if needed setting the path to the browserdriver
         String dropboxPath = configManager.getDropboxPath();
-        File testDriverFile;
         File testDropboxFile;
 
         // getting or if needed setting the path to the users dropbox directory
@@ -37,10 +36,8 @@ public class ConfigLoader {
             dropboxPath = new DropboxSelector().selectDropbox();
             configManager.setDropboxPath(dropboxPath);
             configManager.saveConfig();
-            testDropboxFile = new File(dropboxPath);
-        } else {
-            testDropboxFile = new File(dropboxPath);
         }
+        testDropboxFile = new File(dropboxPath);
         if (!(testDropboxFile.exists())) {
             dropboxPath = new DropboxSelector().selectDropbox();
             configManager.setBrowser(dropboxPath);
