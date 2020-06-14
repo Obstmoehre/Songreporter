@@ -121,7 +121,7 @@ public class MainGUIController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         addBrowserButtonListeners();
-        if (!configManager.getBrowser().equals("")) {
+        if (configManager.getBrowser() != null && !configManager.getBrowser().equals("")) {
             browserButton.setText(configManager.getBrowser());
         }
 

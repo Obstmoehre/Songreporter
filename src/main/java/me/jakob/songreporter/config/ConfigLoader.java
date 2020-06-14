@@ -83,7 +83,7 @@ public class ConfigLoader {
         // showing an error window if something went wrong with the me.jakob.songreporter.config file
         if (!isCreated) {
             ErrorGUI jsonErrorGUI = new ErrorGUI();
-            jsonErrorGUI.showNewErrorMessage("Es ist ein Fehler mit der json Datei aufgetreten!");
+            jsonErrorGUI.showNewErrorMessage("Es ist ein Fehler mit der config Datei aufgetreten!");
         }
     }
 
