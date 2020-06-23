@@ -13,7 +13,7 @@ also not saved as I don't think you want to report one script multiple times.
 ## License
 Songreporter is released under the Apache 2.0 license.
 
-Included dependencies are:
-Gson: Copyright 2008 Google Inc.
-Selenium: Copyright 2020 Software Freedom Conservancy (SFC)
-bonigarcia.github.io: Copyright 2020 Boni Garcia.
+Included dependencies are:  
+Gson: Copyright 2008 Google Inc.  
+Selenium: Copyright 2020 Software Freedom Conservancy (SFC)  
+bonigarcia.github.io: Copyright 2020 Boni Garcia.  
