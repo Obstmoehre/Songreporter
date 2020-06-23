@@ -1,6 +1,5 @@
 package me.jakob.songreporter;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

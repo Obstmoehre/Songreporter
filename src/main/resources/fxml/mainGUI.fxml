@@ -18,10 +18,19 @@
             <Insets right="1.0" top="1.0" />
         </opaqueInsets>
         <Pane prefHeight="197.0" prefWidth="250.0">
-            <Label layoutX="26.0" layoutY="34.0" text="CCLI Credentials:" />
-            <TextField fx:id="eMailField" layoutX="26.0" layoutY="60.0" prefHeight="25.0" prefWidth="251.0" promptText="E-Mail" />
-            <PasswordField fx:id="passwordField" layoutX="26.0" layoutY="92.0" prefHeight="25.0" prefWidth="251.0" promptText="Password" />
-            <CheckBox fx:id="saveCheckBox" layoutX="26.0" layoutY="125.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="149.0" selected="true" text="Save Credentials" />
+            <Label layoutX="26.0" layoutY="9.0" text="CCLI Credentials:" />
+            <TextField fx:id="eMailField" layoutX="26.0" layoutY="32.0" onKeyReleased="#onEMailFieldReleased" prefHeight="25.0" prefWidth="251.0" promptText="E-Mail" />
+            <PasswordField fx:id="passwordField" layoutX="26.0" layoutY="62.0" onKeyReleased="#onPasswordFieldReleased" prefHeight="25.0" prefWidth="251.0" promptText="Password" />
+            <CheckBox fx:id="saveCheckBox" layoutX="26.0" layoutY="90.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="149.0" selected="true" text="Save E-Mail" />
+             <Label layoutX="89.0" layoutY="130.0" text="Select installed Browser" />
+         <MenuButton fx:id="browserButton" layoutX="114.0" layoutY="156.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="75.0" text="Browser">
+             <items>
+                 <MenuItem mnemonicParsing="false" text="Chrome" />
+                 <MenuItem mnemonicParsing="false" text="Firefox" />
+                 <MenuItem mnemonicParsing="false" text="Opera" />
+           </items>
+         </MenuButton>
+         <Separator layoutY="108.0" prefHeight="17.0" prefWidth="307.0" />
         </Pane>
         <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="184.0" prefWidth="200.0" GridPane.columnIndex="1">
          <GridPane>
@@ -35,28 +44,41 @@
             <children>
                   <Pane prefHeight="200.0" prefWidth="200.0">
                   <children>
-                         <Label layoutX="131.0" layoutY="51.0" text="Current:" />
-                         <Button layoutX="125.0" layoutY="24.0" mnemonicParsing="false" onAction="#onDropboxButtonClick" text="Choose" />
-                         <Label layoutX="86.0" layoutY="6.0" text="Select Dropbox Directory" />
+                         <Label layoutX="131.0" layoutY="48.0" text="Current:" />
+                         <Button layoutX="125.0" layoutY="24.0" mnemonicParsing="false" onAction="#onSongsButtonClick" text="Choose" />
+                         <Label layoutX="93.0" layoutY="6.0" text="Select Songs Directory" />
                   </children>
                </Pane>
                <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                   <center>
-                         <Label fx:id="dropboxLabel" text="[Current Location]" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
+                         <Label fx:id="songsLabel" text="none" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
                   </center>
                </BorderPane>
             </children>
          </GridPane>
-            <Pane prefHeight="62.0" prefWidth="158.0">
-                <Label layoutX="90.0" layoutY="21.0" text="Select installed Browser" />
-            <MenuButton fx:id="browserButton" layoutX="115.0" layoutY="38.0" mnemonicParsing="false" onAction="#onBrowserButtonClick" prefHeight="25.0" prefWidth="75.0" text="Browser">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="Chrome" />
-                    <MenuItem mnemonicParsing="false" text="Firefox" />
-                    <MenuItem mnemonicParsing="false" text="Opera" />
-              </items>
-            </MenuButton>
-            </Pane>
+         <GridPane>
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints maxHeight="73.0" minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="42.0" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+               <Pane prefHeight="200.0" prefWidth="200.0">
+                  <children>
+                     <Label layoutX="131.0" layoutY="48.0" text="Current:" />
+                     <Button layoutX="125.0" layoutY="24.0" mnemonicParsing="false" onAction="#onScriptsButtonClick" text="Choose" />
+                     <Label layoutX="80.0" layoutY="6.0" text="Select Flowsheets Directory" />
+                  </children>
+               </Pane>
+               <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
+                  <center>
+                     <Label fx:id="scriptsLabel" text="none" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
+                  </center>
+               </BorderPane>
+            </children>
+         </GridPane>
         </SplitPane>
       <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnIndex="2">
          <items>
@@ -78,7 +100,7 @@
                     </Pane>
                   <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                      <center>
-                           <Label fx:id="scriptLabel" text="Select a Flowsheet" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
+                           <Label fx:id="scriptLabel" text="none" textAlignment="CENTER" wrapText="true" BorderPane.alignment="CENTER" />
                      </center></BorderPane>
                </children>
                <opaqueInsets>
