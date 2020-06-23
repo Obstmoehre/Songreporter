@@ -1,20 +1,23 @@
 package me.jakob.songreporter.GUI;
 
-import javax.swing.*;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 public class ErrorGUI {
-
-    // a little me.jakob.songreporter.GUI to show important error messages to the user
-
     public void showNewErrorMessage(String message) {
-        JFrame errorWindow = new JFrame();
+        Stage primaryStage = new Stage();
+        BorderPane root = new BorderPane();
+        Scene scene = new Scene(root);
 
-        JTextArea errorTextArea = new JTextArea(10, 45);
-        errorTextArea.setText(message);
-        errorTextArea.setEditable(false);
+        Label label = new Label(message);
 
-        errorWindow.add(errorTextArea);
-        errorWindow.setSize(900, 400);
-        errorWindow.setVisible(true);
+        root.setCenter(label);
+        root.setMinSize(300,200);
+        root.setVisible(true);
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 }
