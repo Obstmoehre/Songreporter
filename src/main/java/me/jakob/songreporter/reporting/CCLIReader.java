@@ -1,7 +1,6 @@
 package me.jakob.songreporter.reporting;
 
 import me.jakob.songreporter.GUI.ErrorGUI;
-import me.jakob.songreporter.config.ConfigManager;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -9,15 +8,14 @@ import java.util.ArrayList;
 
 public class CCLIReader {
 
-    public ArrayList<String> start(ConfigManager configManager) {
+    public ArrayList<String> read(String songsDirectory, File script) {
         ArrayList<String> ccliList = new ArrayList<>();
         ArrayList<String> songList = new ArrayList<>();
 
         // read script and extract songs
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(configManager.getScript().getPath()), StandardCharsets.UTF_8));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
             StringBuilder songname = new StringBuilder();
-            String songsDirectory = configManager.getDropboxPath() + "/SongBeamer/Songs/";
             while (bufferedReader.ready()) {
                 String scriptLine = bufferedReader.readLine().trim();
                 scriptLine = replaceSpecialCharacters(scriptLine);
@@ -57,10 +55,6 @@ public class CCLIReader {
         return ccliList;
     }
 
-
-
-    // funtion to replace the special characters of a String out of a script
-    // because Sonbeamer can't write these characters into the script or song files
     private String replaceSpecialCharacters(String oldString) {
         String newString = oldString;
         newString = newString.replace("'", "");

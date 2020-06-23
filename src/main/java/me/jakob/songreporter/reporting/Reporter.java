@@ -1,38 +1,30 @@
 package me.jakob.songreporter.reporting;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import me.jakob.songreporter.config.ConfigManager;
+import me.jakob.songreporter.GUI.ErrorGUI;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeDriverService;
-import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.opera.OperaDriver;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 public class Reporter {
-    private static ChromeDriverService service;
+    private File script;
     private WebDriver driver;
-    private ConfigManager configManager;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
 
-    public void report(ConfigManager configManager, ArrayList<String> ccliList) throws IOException {
+    public void report(String eMail, String password, String browser, File script, ArrayList<String> ccliList) throws IOException {
         FileWriter errorWriter = new FileWriter(errorLog, true);
-        this.configManager = configManager;
+        this.script = script;
 
         // starting driver and going to main page
-        switch(configManager.getBrowser()) {
+        switch(browser) {
             case "Chrome":
                 WebDriverManager.chromedriver().setup();
                 driver = new ChromeDriver();
@@ -50,12 +42,11 @@ public class Reporter {
 
         // login to online me.jakob.songreporter.reporting
 
-        driver.findElement(By.id("EmailAddress")).sendKeys(configManager.getTempEMail());
-        driver.findElement(By.id("Password")).sendKeys(configManager.getTempPassword());
+        driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
+        driver.findElement(By.id("Password")).sendKeys(password);
         driver.findElement(By.id("sign-in")).click();
 
         // reporting the songs out of the list of CCLI songnumbers
-        byte count = 0;
         for (String ccli : ccliList){
             try {
                 // search for the CCLI songnumber
@@ -78,10 +69,11 @@ public class Reporter {
 
                 // submitting the form and removing the CCLI songnumber
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
-                count++;
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
                 if (!errorLog.exists()) {
-                    errorLog.createNewFile();
+                    if (!(errorLog.createNewFile())) {
+                        new ErrorGUI().showNewErrorMessage("Failed to create new error log.");
+                    }
                 }
                 errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n\n");
                 errorWriter.flush();
@@ -112,7 +104,7 @@ public class Reporter {
     }
 
     private void markAsReported() throws IOException {
-        FileWriter fileWriter = new FileWriter(configManager.getScript(), true);
+        FileWriter fileWriter = new FileWriter(this.script, true);
         fileWriter.append("#reported");
         fileWriter.flush();
         fileWriter.close();
