@@ -12,6 +12,9 @@ also not saved as I don't think you want to report one script multiple times. Af
 script previously reported by the program the name will be shown in green. If you the name of your script files contain a date in this format [yyyy-mm-dd] 
 the program can detect an unreported script of the last seven days.
 
+**important**: The songs have to contain their ccli-songnumber as an attribute, because this is the way the "plugin" recognizes the songs and searches them
+at the Online Reporting webpage.
+
 ## License
 Songreporter is released under the Apache 2.0 license.
 
