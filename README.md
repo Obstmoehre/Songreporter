@@ -8,7 +8,9 @@ the directory where all the song files (.sng) are saved in, the directory where 
 the songs it contains. Also you need to choose which browser you have installed and after clicking on the "Report" button this browser will open 
 and do the reporting for you as long as you don't do anything inside this browser window. All given directories are saved for the next usage and you 
 have the option to also save your E-Mail Adress. For safety reasons there is no option to save your password and obviously the script you reported is 
-also not saved as I don't think you want to report one script multiple times.
+also not saved as I don't think you want to report one script multiple times. After reporting the script it gets marked as reported and if you select a 
+script previously reported by the program the name will be shown in green. If you the name of your script files contain a date in this format [yyyy-mm-dd] 
+the program can detect an unreported script of the last seven days.
 
 ## License
 Songreporter is released under the Apache 2.0 license.
