@@ -19,7 +19,7 @@ public class Reporter {
     private WebDriver driver;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
 
-    public void report(String eMail, String password, String browser, File script, ArrayList<String> ccliList) throws IOException {
+    public void report(String eMail, String password, String browser, File script, boolean[] categories, ArrayList<String> ccliList) throws IOException {
         FileWriter errorWriter = new FileWriter(errorLog, true);
         this.script = script;
 
@@ -60,12 +60,42 @@ public class Reporter {
                 driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
                 songNumber = songNumber.substring(5);
 
-                // setting digital count to 1
-                WebElement digitalCount = driver.findElement(By.id("DigitalCount-" + songNumber));
-                Thread.sleep(750);
-                digitalCount.click();
-                digitalCount.clear();
-                digitalCount.sendKeys("1");
+                if (categories[0]) {
+                    // increasing print count by 1
+                    WebElement printCount = driver.findElement(By.id("PrintCount-" + songNumber));
+                    Thread.sleep(750);
+                    printCount.click();
+                    printCount.clear();
+                    printCount.sendKeys("1");
+                }
+
+                if (categories[1]) {
+                    // increasing digital count by 1
+                    WebElement digitalCount = driver.findElement(By.id("DigitalCount-" + songNumber));
+                    Thread.sleep(750);
+                    digitalCount.click();
+                    digitalCount.clear();
+                    digitalCount.sendKeys("1");
+                }
+
+                if (categories[2]) {
+                    // increasing stream count by 1
+                    WebElement streamCount = driver.findElement(By.id("RecordingCount-" + songNumber));
+                    Thread.sleep(750);
+                    streamCount.click();
+                    streamCount.clear();
+                    streamCount.sendKeys("1");
+                }
+
+                if (categories[3]) {
+                    // increasing translation count by 1
+                    WebElement translationCount = driver.findElement(By.id("TranslationCount-" + songNumber));
+                    Thread.sleep(750);
+                    translationCount.click();
+                    translationCount.clear();
+                    translationCount.sendKeys("1");
+                }
+
 
                 // submitting the form and removing the CCLI songnumber
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();

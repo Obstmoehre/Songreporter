@@ -12,6 +12,7 @@ public class ConfigManager {
     private String songsDirectory;
     private String scriptsDirectory;
     private String eMail;
+    private boolean[] categories;
 
     public void saveConfig() {
         String toJson = this.gson.toJson(this);
@@ -54,5 +55,13 @@ public class ConfigManager {
 
     public void setScriptsDirectory(String scriptsDirectory) {
         this.scriptsDirectory = scriptsDirectory;
+    }
+
+    public boolean[] getCategories() {
+        return categories;
+    }
+
+    public void setCategories(boolean[] categories) {
+        this.categories = categories;
     }
 }

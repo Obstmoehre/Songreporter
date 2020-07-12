@@ -22,12 +22,17 @@ public class MainGUIController implements Initializable {
     private final ConfigManager configManager = new ConfigLoader().load();
     private final Reporter reporter = new Reporter();
     private final CCLIReader ccliReader = new CCLIReader();
+    private CheckBox[] categoryBoxes;
     private File script;
 
     public TextField eMailField;
     public PasswordField passwordField;
     public CheckBox saveCheckBox;
     public MenuButton browserButton;
+    public CheckBox printBox;
+    public CheckBox digitalBox;
+    public CheckBox streamBox;
+    public CheckBox translationBox;
     public Label songsLabel;
     public Label scriptsLabel;
     public Label scriptLabel;
@@ -44,7 +49,7 @@ public class MainGUIController implements Initializable {
             this.configManager.saveConfig();
 
             try {
-                reporter.report(eMail, password, this.configManager.getBrowser(), this.script,
+                reporter.report(eMail, password, this.configManager.getBrowser(), this.script, this.configManager.getCategories(),
                         ccliReader.read(this.configManager.getSongsDirectory(), this.script));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -92,7 +97,7 @@ public class MainGUIController implements Initializable {
     public void onScriptButtonClick() {
         File script = new FileSelector("Choose Flowsheet", configManager.getScriptsDirectory()).select();
 
-        if (!checkScript(script)) {
+        if (!checkScript(script) && script != null) {
             setLabelText(scriptLabel, script.getName());
             scriptLabel.setStyle("-fx-text-fill: -fx-text-base-color");
             this.script = script;
@@ -158,6 +163,21 @@ public class MainGUIController implements Initializable {
         }
     }
 
+    public void onCategoriesChange() {
+        int i = 0;
+        boolean[] categories = new boolean[4];
+        for (CheckBox categoryBox : this.categoryBoxes) {
+            categories[i] = categoryBox.isSelected();
+            i++;
+        }
+
+        this.configManager.setCategories(categories);
+    }
+
+    public void onSaveConfigClick() {
+        this.configManager.saveConfig();
+    }
+
     private void addBrowserButtonListeners() {
         ObservableList<MenuItem> menuItems = browserButton.getItems();
         menuItems.get(0).setOnAction(a -> {
@@ -195,6 +215,12 @@ public class MainGUIController implements Initializable {
         addBrowserButtonListeners();
         if (this.configManager.getBrowser() != null) {
             browserButton.setText(this.configManager.getBrowser());
+        }
+
+        this.categoryBoxes = new CheckBox[]{this.printBox, this.digitalBox, this.streamBox, this.translationBox};
+        boolean[] categories = this.configManager.getCategories();
+        for (int i = 0; i < 4; i++) {
+            categoryBoxes[i].setSelected(categories[i]);
         }
 
         if (this.configManager.getScriptsDirectory() != null) {

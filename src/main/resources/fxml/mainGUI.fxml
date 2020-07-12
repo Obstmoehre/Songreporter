@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="197.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.jakob.songreporter.GUI.MainGUIController">
+<AnchorPane prefHeight="234.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.jakob.songreporter.GUI.MainGUIController">
     <GridPane prefHeight="215.0" prefWidth="920.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -31,6 +31,7 @@
            </items>
          </MenuButton>
          <Separator layoutY="108.0" prefHeight="17.0" prefWidth="307.0" />
+         <Separator layoutY="198.0" prefHeight="6.0" prefWidth="314.0" />
         </Pane>
         <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="184.0" prefWidth="200.0" GridPane.columnIndex="1">
          <GridPane>
@@ -114,4 +115,39 @@
          </items>
       </SplitPane>
     </GridPane>
+   <GridPane layoutX="-1.0" layoutY="202.0" prefHeight="70.0" prefWidth="920.0">
+     <columnConstraints>
+       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+     </columnConstraints>
+     <rowConstraints>
+       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+     </rowConstraints>
+      <children>
+         <Pane prefHeight="200.0" prefWidth="200.0">
+            <children>
+               <CheckBox fx:id="printBox" layoutX="14.0" layoutY="35.0" mnemonicParsing="false" onMouseClicked="#onCategoriesChange" text="Print" />
+            </children>
+         </Pane>
+         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+            <children>
+               <CheckBox fx:id="digitalBox" layoutX="14.0" layoutY="35.0" mnemonicParsing="false" onMouseClicked="#onCategoriesChange" text="Digital" />
+               <Label layoutX="153.0" layoutY="6.0" text="Select Categories to report in" />
+            </children>
+         </Pane>
+         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
+            <children>
+               <CheckBox fx:id="streamBox" layoutX="14.0" layoutY="35.0" mnemonicParsing="false" onMouseClicked="#onCategoriesChange" text="Stream" />
+            </children>
+         </Pane>
+         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3">
+            <children>
+               <CheckBox fx:id="translationBox" layoutX="14.0" layoutY="35.0" mnemonicParsing="false" onMouseClicked="#onCategoriesChange" text="Translation" />
+               <Button layoutX="129.0" layoutY="31.0" mnemonicParsing="false" onAction="#onSaveConfigClick" text="Save Settings" />
+            </children>
+         </Pane>
+      </children>
+   </GridPane>
 </AnchorPane>

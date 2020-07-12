@@ -90,5 +90,9 @@ public class ConfigLoader {
                 configManager.setScriptsDirectory(null);
             }
         }
+
+        if (configManager.getCategories() == null) {
+            configManager.setCategories(new boolean[]{false, false, false, false});
+        }
     }
 }
