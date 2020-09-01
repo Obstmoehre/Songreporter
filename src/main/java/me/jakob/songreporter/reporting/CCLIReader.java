@@ -15,21 +15,21 @@ public class CCLIReader {
         // read script and extract songs
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
-            StringBuilder songname = new StringBuilder();
+            StringBuilder songName = new StringBuilder();
             while (bufferedReader.ready()) {
                 String scriptLine = bufferedReader.readLine().trim();
                 scriptLine = replaceSpecialCharacters(scriptLine);
                 if (scriptLine.contains("FileName") && (scriptLine.contains("+") || scriptLine.endsWith(".sng"))) {
-                    songname = new StringBuilder(scriptLine.substring(scriptLine.indexOf("=")+2));
+                    songName = new StringBuilder(scriptLine.substring(scriptLine.indexOf("=")+2));
                 } else if (scriptLine.contains("FileName")) {
-                    songname = new StringBuilder();
-                } else if (scriptLine.contains("+")) {
-                    songname.append(scriptLine, 0, scriptLine.length()-2);
-                } else if (scriptLine.contains("end") && songname.toString().endsWith(".sng")) {
-                    songList.add(songname.toString());
-                    songname = new StringBuilder();
+                    songName = new StringBuilder();
+                } else if (scriptLine.contains("+") && !(songName.toString().endsWith(".sng"))) {
+                    songName.append(scriptLine, 0, scriptLine.length()-2);
+                } else if (scriptLine.contains("end") && songName.toString().endsWith(".sng")) {
+                    songList.add(songName.toString());
+                    songName = new StringBuilder();
                 } else if (scriptLine.endsWith("g")) {
-                    songname.append(scriptLine);
+                    songName.append(scriptLine);
                 }
             }
 

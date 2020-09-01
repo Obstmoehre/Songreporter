@@ -46,6 +46,12 @@ public class Reporter {
         driver.findElement(By.id("Password")).sendKeys(password);
         driver.findElement(By.id("sign-in")).click();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // reporting the songs out of the list of CCLI songnumbers
         for (String ccli : ccliList){
             try {
@@ -98,7 +104,7 @@ public class Reporter {
 
 
                 // submitting the form and removing the CCLI songnumber
-                driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[4]/button")).click();
+                driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[5]/button")).click();
             } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
                 if (!errorLog.exists()) {
                     if (!(errorLog.createNewFile())) {
