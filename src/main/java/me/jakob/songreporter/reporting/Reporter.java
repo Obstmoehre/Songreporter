@@ -1,8 +1,16 @@
 package me.jakob.songreporter.reporting;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import me.jakob.songreporter.GUI.ErrorGUI;
+import me.jakob.songreporter.GUI.SummaryGUIController;
+import me.jakob.songreporter.Songreporter;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -10,6 +18,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.opera.OperaDriver;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,13 +27,14 @@ public class Reporter {
     private File script;
     private WebDriver driver;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
+    private FileWriter errorWriter;
 
-    public void report(String eMail, String password, String browser, File script, boolean[] categories, ArrayList<String> ccliList) throws IOException {
-        FileWriter errorWriter = new FileWriter(errorLog, true);
+    public void report(String eMail, String password, String browser, File script, boolean[] categories, ArrayList<Song> songList) throws IOException {
+        errorWriter = new FileWriter(errorLog, true);
         this.script = script;
 
         // starting driver and going to main page
-        switch(browser) {
+        switch (browser) {
             case "Chrome":
                 WebDriverManager.chromedriver().setup();
                 driver = new ChromeDriver();
@@ -53,17 +63,34 @@ public class Reporter {
         }
 
         // reporting the songs out of the list of CCLI songnumbers
-        for (String ccli : ccliList){
+        for (Song song : songList) {
+            // search for the CCLI songnumber
             try {
-                // search for the CCLI songnumber
                 WebElement searchBar = driver.findElement(By.id("SearchTerm"));
                 searchBar.clear();
-                searchBar.sendKeys(ccli);
+                searchBar.sendKeys(song.getCcliNumber());
                 driver.findElement(By.xpath("//*[@id=\"searchBar\"]/div/div/button")).click();
+            } catch (NoSuchElementException e) {
+                error(e, "Search Bar not found. The code of the website might have changed.\n" +
+                        "Please report this to me so I can adapt my code to the changes.");
+                break;
+            }
 
+            try {
                 // Extracting the internal songnumber and expanding the reporting field
-                String songNumber = driver.findElement(By.className("searchResultsSongSummary")).getAttribute("id");
-                driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
+                String songNumber = "";
+                try {
+                    songNumber = driver.findElement(By.className("searchResultsSongSummary")).getAttribute("id");
+                } catch (NoSuchElementException e) {
+                    throw new NoSearchResultsException(song.getCcliNumber());
+                }
+
+                try {
+                    driver.findElement(By.xpath("//*[@id=\"" + songNumber + "\"]/div/div[1]/span[1]")).click();
+                } catch (NoSuchElementException e) {
+                    throw new SongNotReportableException(song);
+                }
+
                 songNumber = songNumber.substring(5);
 
                 if (categories[0]) {
@@ -105,16 +132,16 @@ public class Reporter {
 
                 // submitting the form and removing the CCLI songnumber
                 driver.findElement(By.xpath("//*[@id=\"AddCCL-" + songNumber + "\"]/div[1]/div[5]/button")).click();
-            } catch(org.openqa.selenium.NoSuchElementException | InterruptedException e) {
-                if (!errorLog.exists()) {
-                    if (!(errorLog.createNewFile())) {
-                        new ErrorGUI().showNewErrorMessage("Failed to create new error log.");
-                    }
+                song.markReported();
+            } catch (NoSearchResultsException | SongNotReportableException | InterruptedException e) {
+                error(e, e.getMessage());
+                if (e.getClass() == SongNotReportableException.class) {
+                    song.markUnreported("Song not licensed or Website changed");
+                } else if (e.getClass() == NoSearchResultsException.class) {
+                    song.markUnreported("No search result for this CCLI number");
                 }
-                errorWriter.write("Error while reporting:\n" + e.getMessage() + "\n\n");
-                errorWriter.flush();
-                e.printStackTrace();
             }
+
 
             // a little delay for an animation on the website
             try {
@@ -137,6 +164,8 @@ public class Reporter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        summarise(songList);
     }
 
     private void markAsReported() throws IOException {
@@ -144,5 +173,49 @@ public class Reporter {
         fileWriter.append("#reported");
         fileWriter.flush();
         fileWriter.close();
+    }
+
+    private void error(Exception e, String message) {
+        try {
+            if (!errorLog.exists()) {
+                if (!(errorLog.createNewFile())) {
+                    new ErrorGUI().showNewErrorMessage("Failed to create new error log.");
+                }
+            }
+            errorWriter.write("--------------------------------------------------\n\n");
+            errorWriter.write("Error while reporting. Error:\n" + e.getMessage() + "\n\n");
+            errorWriter.write(message + "\n\n");
+            errorWriter.flush();
+            e.printStackTrace();
+        } catch (IOException e1) {
+            new ErrorGUI().showNewErrorMessage("Error logging failed");
+        }
+    }
+
+    private void summarise(ArrayList<Song> songList) {
+        Stage summaryStage = new Stage();
+
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/summaryGUI.fxml"));
+        Parent root = null;
+        try {
+            root = fxmlLoader.load();
+        } catch (IOException e) {
+            error(e, e.getMessage());
+        }
+
+        if (root != null) {
+            summaryStage.setTitle("Summary");
+            summaryStage.setScene(new Scene(root, 920, 263));
+            summaryStage.setResizable(true);
+
+            SummaryGUIController summaryGUIController = fxmlLoader.getController();
+            try {
+                summaryGUIController.summarise(songList);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            summaryStage.show();
+        }
     }
 }
