@@ -22,7 +22,7 @@ public class SummaryGUIController {
             songPane.setPrefHeight(50);
 
             Label titleAndCcli = new Label(song.getName() + " (" + song.getCcliNumber() + ")");
-            titleAndCcli.setTex
+
             Image checkMark;
             if (song.isReported()) {
                 checkMark = new Image(new FileInputStream("src/main/resources/assets/checkmark2.png"));
