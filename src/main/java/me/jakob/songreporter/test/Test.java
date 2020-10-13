@@ -1,48 +1,34 @@
 package me.jakob.songreporter.test;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import me.jakob.songreporter.GUI.SummaryGUIController;
-import me.jakob.songreporter.reporting.Song;
+import me.jakob.songreporter.reporting.CCLIReader;
+import me.jakob.songreporter.reporting.Reporter;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 
 public class Test extends Application {
 
-    public static void main(String[] args) {
+    private final Reporter reporter = new Reporter();
+    private final CCLIReader ccliReader = new CCLIReader();
+    public static Stage primaryStage;
+
+    public static void main(String[] args) throws IOException {
         launch(args);
     }
 
-    public static Stage getPrimaryStage() {
-        return primaryStage;
-    }
-
-    public static void setPrimaryStage(Stage primaryStage) {
-        Test.primaryStage = primaryStage;
-    }
-
-    private static Stage primaryStage;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
-        ArrayList<Song> songs = new ArrayList<>();
-        songs.add(new Song("Testsong"));
+        Test.primaryStage = primaryStage;
 
-        setPrimaryStage(primaryStage);
-
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/summaryGUI.fxml"));
-        Parent root = fxmlLoader.load();
-
-        SummaryGUIController controller = fxmlLoader.getController();
-        controller.summarise(songs);
-
-        primaryStage.setTitle("Summary");
-        primaryStage.setScene(new Scene(root, 600, 50));
-        primaryStage.setResizable(false);
-        primaryStage.setOnCloseRequest(event -> System.exit(0));
-        primaryStage.show();
+        for (int i = 0; i < 100; i++) {
+            reporter.report("jakob.gerstmann@outlook.de", "Beamer/Jungs", "Chrome",
+                    new File("C:\\Users\\jucom.Demo\\Desktop\\Songbeamer\\Scripts\\Ablaufplan 2020-08-30.col"),
+                    new boolean[]{false, true, true, false},
+                    ccliReader.read("C:\\Users\\jucom.Demo\\Desktop\\Songbeamer\\Songs\\",
+                            new File("C:\\Users\\jucom.Demo\\Desktop\\" +
+                                    "Songbeamer\\Scripts\\Ablaufplan 2020-08-30.col")));
+        }
     }
 }

@@ -35,7 +35,7 @@ public class CCLIReader {
             // going through the song files and reading the ccli songnumbers out of them
             for (Song song : songList) {
                 try {
-                    bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(songsDirectory + song), StandardCharsets.UTF_8));
+                    bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(songsDirectory + song.getName() + ".sng"), StandardCharsets.UTF_8));
                     while (bufferedReader.ready()) {
                         String songLine = bufferedReader.readLine().trim();
                         if (songLine.contains("CCLI")) {
