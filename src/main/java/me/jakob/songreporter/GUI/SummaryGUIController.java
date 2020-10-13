@@ -2,13 +2,10 @@ package me.jakob.songreporter.GUI;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.text.TextAlignment;
 import me.jakob.songreporter.reporting.Song;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -22,7 +19,15 @@ public class SummaryGUIController {
             songPane.setPrefWidth(550);
             songPane.setPrefHeight(50);
 
-            Label titleAndCcli = new Label(song.getName() + " (CCLI: " + song.getCcliNumber() + ")");
+            Label titleAndCcli;
+            Label reasonLabel = null;
+
+            if (song.getCcliNumber() == null) {
+                titleAndCcli = new Label(song.getName() + " (CCLI: No CCLI Number found)");
+            } else {
+                titleAndCcli = new Label(song.getName() + " (CCLI: " + song.getCcliNumber() + ")");
+            }
+
             titleAndCcli.setScaleX(1.5);
             titleAndCcli.setScaleY(1.5);
 
@@ -30,6 +35,9 @@ public class SummaryGUIController {
                 titleAndCcli.setStyle("-fx-text-fill: #58a832");
             } else {
                 titleAndCcli.setStyle("-fx-text-fill: #ff0000");
+                reasonLabel = new Label(song.getReason());
+                reasonLabel.setStyle("-fx-alignment: baseline-center");
+                songPane.setBottom(reasonLabel);
             }
 
             songPane.setCenter(titleAndCcli);
