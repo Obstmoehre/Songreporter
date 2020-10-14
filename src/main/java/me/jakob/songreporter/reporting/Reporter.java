@@ -17,7 +17,6 @@ import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.support.ui.Select;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -193,7 +192,9 @@ public class Reporter {
             }
             errorWriter.write("--------------------------------------------------\n\n");
             errorWriter.write("Error while reporting. Error:\n" + e.getMessage() + "\n\n");
-            errorWriter.write(message + "\n\n");
+            if (!message.equals("")) {
+                errorWriter.write(message + "\n\n");
+            }
             errorWriter.flush();
             e.printStackTrace();
         } catch (IOException e1) {
@@ -213,15 +214,12 @@ public class Reporter {
         if (root != null) {
             Stage summaryStage = new Stage();
             summaryStage.setTitle("Summary");
-            summaryStage.setScene(new Scene(root, 590, 401));
+            summaryStage.setScene(new Scene(root, 600, 400));
             summaryStage.setResizable(false);
 
             SummaryGUIController summaryGUIController = fxmlLoader.getController();
-            try {
-                summaryGUIController.summarise(songList);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            summaryGUIController.summarise(songList);
+
 
             summaryStage.show();
         }
@@ -231,7 +229,7 @@ public class Reporter {
         boolean isloaded = false;
         int tries = 0;
 
-        while (!isloaded && tries < 10) {
+        while (!isloaded && tries < 300) {
             try {
                 driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"));
                 isloaded = true;
@@ -251,9 +249,12 @@ public class Reporter {
 
         try {
             while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]")).getAttribute("aria-busy").equals("true")) {
+                Thread.sleep(50);
             }
         } catch (NoSuchElementException e) {
             System.out.println("loading screen not found");
+        } catch (InterruptedException e) {
+            error(e, "");
         }
     }
 }

@@ -1,4 +1,4 @@
-/src/main/java/me/jakob/songreporter/test/Test.java
+/src/main/java/me/jakob/songreporter/test/
 *.iml
 .idea
 target

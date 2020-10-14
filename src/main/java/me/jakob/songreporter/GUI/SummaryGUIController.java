@@ -1,20 +1,19 @@
 package me.jakob.songreporter.GUI;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
 import me.jakob.songreporter.reporting.Song;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class SummaryGUIController {
 
-    public ListView summaryList;
+    public ListView<VBox> summaryList;
 
-    public void summarise(ArrayList<Song> songList) throws FileNotFoundException {
+    public void summarise(ArrayList<Song> songList) {
         for (Song song : songList) {
             VBox songBox = new VBox();
 
@@ -41,7 +40,7 @@ public class SummaryGUIController {
                 titleAndCcli.setStyle("-fx-text-fill: #58a832");
             } else {
                 titleAndCcli.setStyle("-fx-text-fill: #ff0000");
-                reasonLabel = new Label(song.getReason());
+                reasonLabel = new Label(song.getReason() + " [click for details]");
                 reasonPane.setCenter(reasonLabel);
             }
 
@@ -54,5 +53,35 @@ public class SummaryGUIController {
 
             summaryList.getItems().add(songBox);
         }
+
+        summaryList.setOnMouseClicked(event -> {
+            if (summaryList.getSelectionModel().getSelectedItem()
+                    .getChildren().size() > 1) {
+                BorderPane reasonPane = (BorderPane) summaryList.getSelectionModel().getSelectedItem()
+                        .getChildren().get(1);
+
+                Label reasonLabel = (Label) reasonPane.getCenter();
+
+                BorderPane titlePane = (BorderPane) summaryList.getSelectionModel().getSelectedItem()
+                        .getChildren().get(0);
+
+                Label titleLabel = (Label) titlePane.getCenter();
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Reason");
+
+                alert.setHeaderText(titleLabel.getText());
+                if (reasonLabel.getText().equals("Song not licensed or Website changed [click for details]")) {
+                    alert.setContentText(reasonLabel.getText() + "\n(Only possible when no song was reported" +
+                            " successfully. If so please check if any song is licensed and report the licensed songs" +
+                            " manually.)");
+                } else if (reasonLabel.getText().equals("No search result for this CCLI number [click for details]")) {
+                    alert.setContentText(reasonLabel.getText() + "\n(Please check this manually. It is likely that" +
+                            "the code of the website has changed and therefore the program can't find the result.)");
+                }
+
+                alert.showAndWait();
+            }
+        });
     }
 }

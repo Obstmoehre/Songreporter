@@ -1,0 +1,5 @@
+#summaryList {
+    -fx-selection-bar: green;
+    -fx-selection-bar-non-focused: green;
+    -fx-background-color: green;
+}
