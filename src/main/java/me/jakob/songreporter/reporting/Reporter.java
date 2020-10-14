@@ -54,7 +54,7 @@ public class Reporter {
         boolean isloaded = false;
         int tries = 0;
 
-        while (!isloaded && tries < 10) {
+        while (!isloaded && tries < 30) {
             try {
                 driver.findElement(By.id("EmailAddress"));
                 isloaded = true;
@@ -72,8 +72,16 @@ public class Reporter {
             }
         }
 
-        driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
-        driver.findElement(By.id("Password")).sendKeys(password);
+        WebElement eMailField = driver.findElement(By.id("EmailAddress"));
+        WebElement passwordField = driver.findElement(By.id("Password"));
+
+        eMailField.sendKeys(eMail);
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        passwordField.sendKeys(password);
         driver.findElement(By.id("sign-in")).click();
 
         waitForLoadingScreen();
@@ -205,7 +213,7 @@ public class Reporter {
         if (root != null) {
             Stage summaryStage = new Stage();
             summaryStage.setTitle("Summary");
-            summaryStage.setScene(new Scene(root, 600, 401));
+            summaryStage.setScene(new Scene(root, 590, 401));
             summaryStage.setResizable(false);
 
             SummaryGUIController summaryGUIController = fxmlLoader.getController();
@@ -229,12 +237,12 @@ public class Reporter {
                 isloaded = true;
             } catch (NoSuchElementException e) {
                 tries++;
-                if (tries >= 10) {
+                if (tries >= 300) {
                     error(e, "Timeout while waiting for loading screen. The code of the website might \n" +
                             "have changed. Please report this to me so I can adapt my code to the changes.");
                 }
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(10);
                 } catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
                 }
@@ -243,11 +251,9 @@ public class Reporter {
 
         try {
             while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]")).getAttribute("aria-busy").equals("true")) {
-                System.out.println("waiting");
             }
-            System.out.println("finished waiting");
         } catch (NoSuchElementException e) {
-            System.out.println("finished waiting (element not found)");
+            System.out.println("loading screen not found");
         }
     }
 }

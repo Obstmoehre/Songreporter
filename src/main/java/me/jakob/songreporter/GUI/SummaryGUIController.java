@@ -3,6 +3,7 @@ package me.jakob.songreporter.GUI;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import me.jakob.songreporter.reporting.Song;
 
@@ -15,10 +16,15 @@ public class SummaryGUIController {
 
     public void summarise(ArrayList<Song> songList) throws FileNotFoundException {
         for (Song song : songList) {
-            BorderPane songPane = new BorderPane();
-            songPane.setPrefWidth(550);
-            songPane.setPrefHeight(50);
+            VBox songBox = new VBox();
 
+            BorderPane titlePane = new BorderPane();
+            titlePane.setPrefWidth(550);
+            titlePane.setPrefHeight(40);
+
+            BorderPane reasonPane = new BorderPane();
+            reasonPane.setPrefWidth(550);
+            reasonPane.setPrefHeight(10);
             Label titleAndCcli;
             Label reasonLabel = null;
 
@@ -36,12 +42,17 @@ public class SummaryGUIController {
             } else {
                 titleAndCcli.setStyle("-fx-text-fill: #ff0000");
                 reasonLabel = new Label(song.getReason());
-                reasonLabel.setStyle("-fx-alignment: baseline-center");
-                songPane.setBottom(reasonLabel);
+                reasonPane.setCenter(reasonLabel);
             }
 
-            songPane.setCenter(titleAndCcli);
-            summaryList.getItems().add(songPane);
+            titlePane.setCenter(titleAndCcli);
+
+            songBox.getChildren().add(titlePane);
+            if (reasonLabel != null) {
+                songBox.getChildren().add(reasonPane);
+            }
+
+            summaryList.getItems().add(songBox);
         }
     }
 }
