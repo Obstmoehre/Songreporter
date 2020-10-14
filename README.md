@@ -9,7 +9,7 @@ the songs it contains. Also you need to choose which browser you have installed 
 and do the reporting for you as long as you don't do anything inside this browser window. All given directories are saved for the next usage and you 
 have the option to also save your E-Mail Adress. For safety reasons there is no option to save your password and obviously the script you reported is 
 also not saved as I don't think you want to report one script multiple times. After reporting the script it gets marked as reported and if you select a 
-script previously reported by the program the name will be shown in green. If you the name of your script files contain a date in this format [yyyy-mm-dd] 
+script previously reported by the program the name will be shown in green. If the name of your script files contain a date in this format [yyyy-mm-dd] 
 the program can detect an unreported script of the last seven days.
 
 **important**: The songs have to contain their ccli-songnumber as an attribute, because this is the way the "plugin" recognizes the songs and searches them
