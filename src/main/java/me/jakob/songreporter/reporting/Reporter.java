@@ -195,7 +195,8 @@ public class Reporter {
                 }
             }
 
-            errorWriter.write(new Date().toString() + "-------------\n\n");
+            String seperator = "------------------------------------------";
+            errorWriter.write(seperator + new Date().toString() + seperator + "\n\n");
             errorWriter.write("Error while reporting. Error:\n" + e.getMessage() + "\n\n");
             if (!message.equals("")) {
                 errorWriter.write(message + "\n\n");
