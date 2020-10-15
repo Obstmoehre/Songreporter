@@ -150,8 +150,7 @@ public class Reporter {
                         }
 
                         // submitting the form
-                        //driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
                     } catch (NoSuchElementException e) {
                         throw new SongNotReportableException(song);
                     }
