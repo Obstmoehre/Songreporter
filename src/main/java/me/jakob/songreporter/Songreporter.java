@@ -12,8 +12,20 @@ public class Songreporter extends Application {
         launch(args);
     }
 
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void setPrimaryStage(Stage primaryStage) {
+        Songreporter.primaryStage = primaryStage;
+    }
+
+    private static Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+        setPrimaryStage(primaryStage);
+
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/mainGUI.fxml"));
         Parent root = fxmlLoader.load();
 
