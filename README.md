@@ -3,7 +3,9 @@ Songreporter is something like a "plugin" for the software Songbeamer to automat
 It's written for everyone who is using Songbeamer as their tool to display songtexts and having to report the displayed songs at CCLI.
 
 ## Usage
-Songreporter has one GUI to collect all the necessary information for reporting. It needs to know your credentials for the online-reporting of CCLI, 
+<img src="https://github.com/Obstmoehre/Songreporter/blob/master/Songreporter%20Main%20GUI.png" />
+
+Songreporter has one GUI (see the screenshot above) to collect all the necessary information for reporting. It needs to know your credentials for the online-reporting of CCLI, 
 the directory where all the song files (.sng) are saved in, the directory where the scripts (.col) are saved in and the script you want to report 
 the songs it contains. Also you need to choose which browser you have installed and after clicking on the "Report" button this browser will open 
 and do the reporting for you as long as you don't do anything inside this browser window. All given directories are saved for the next usage and you 
