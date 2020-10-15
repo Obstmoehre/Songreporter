@@ -27,6 +27,7 @@ public class Reporter {
     private WebDriver driver;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
+    private boolean websiteChangeFlag;
 
     public void report(String eMail, String password, String browser, File script, boolean[] categories,
                        ArrayList<Song> songList) throws IOException {
@@ -113,85 +114,63 @@ public class Reporter {
 
                     waitForLoadingScreen();
 
+                    // Opening the Report-From
                     try {
-                        // Opening the Report-From
+                        driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
+                                "tbody[1]/tr/td[7]/button")).click();
+                    } catch (NoSuchElementException e) {
+                        throw new NoSearchResultsException(song.getCcliNumber());
+                    }
 
-                        try {
-                            driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
-                                    "tbody[1]/tr/td[7]/button")).click();
-                        } catch (NoSuchElementException e) {
-                            throw new NoSearchResultsException(song.getCcliNumber());
-                        }
+                    waitForLoadingScreen();
 
-                        waitForLoadingScreen();
+                    boolean anySuccess = false;
 
-                        boolean noLicencePossible = true;
-                        boolean success = true;
-
-                        if (categories[0]) {
-                            try {// increasing print count by 1
-                                Select printCount = new Select(driver.findElement(By.id("cclPrint")));
-                                printCount.selectByVisibleText("1");
-                                noLicencePossible = false;
-                            } catch (NoSuchElementException e) {
-                                throw new SongNotReportableException(song);
+                    try {
+                        for (int i = 0; i < categories.length; i++) {
+                            if (categories[i]) {
+                                anySuccess = setCategory(i);
                             }
                         }
-
-                        if (categories[1]) {
-                            try {// increasing digital count by 1
-                                Select digitalCount = new Select(driver.findElement(By.id("cclDigital")));
-                                digitalCount.selectByVisibleText("1");
-                                noLicencePossible = false;
-                            } catch (NoSuchElementException e) {
-                                throw new SongNotReportableException(song);
-                            }
-                        }
-
-                        if (categories[2]) {
-                            try {// increasing stream count by 1
-                                Select streamCount = new Select(driver.findElement(By.id("cclRecord")));
-                                streamCount.selectByVisibleText("1");
-                                noLicencePossible = false;
-                            } catch (NoSuchElementException e) {
-                                throw new SongNotReportableException(song);
-                            }
-                        }
-
-                        if (categories[3]) {
-                            try {
-                                // increasing translation count by 1
-                                Select translationCount = new Select(driver.findElement(By.id("cclTranslate")));
-                                translationCount.selectByVisibleText("1");
-                                noLicencePossible = false;
-                            } catch (NoSuchElementException e) {
-                                throw new SongNotReportableException(song);
-                            }
-                        }
-
-                        // submitting the form
-
-                        // testing command (just closing form instead of saving)
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
-
-                        // final command (actually saving the inputs made)
-                        //driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-
-
-                        song.markReported();
-                    } catch (SongNotReportableException | NoSearchResultsException e) {
-                        error(e, e.getMessage());
-                        if (e.getClass() == SongNotReportableException.class) {
-                            song.markUnreported(Reason.SONG_NOT_LICENSED);
-                        } else if (e.getClass() == NoSearchResultsException.class) {
-                            song.markUnreported(Reason.NO_SEARCH_RESULTS);
+                    } catch (CategoryNotReportableException e) {
+                        if (anySuccess || checkForLicence(categories, e.getFailedCategory())) {
+                            throw new WebsiteChangedException();
+                        } else {
+                            throw new SongNotLicencedException(song);
                         }
                     }
+
+                    // submitting the form
+
+                    // testing command (just closing form instead of saving)
+                    driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+
+                    // final command (actually saving the inputs made)
+                    try {
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+                    } catch (NoSuchElementException e) {
+                        throw new WebsiteChangedException();
+                    }
+
+                    song.markReported();
                 } else {
                     song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                 }
-            } catch (Exception e) {
-
+            } catch (WebsiteChangedException | SongNotLicencedException | NoSearchResultsException e) {
+                switch (e.getClass().getName()) {
+                    case "WebsiteChangedException": {
+                        song.markUnreported(Reason.SITE_CODE_CHANGED);
+                        break;
+                    }
+                    case "SongNotLicencedException": {
+                        song.markUnreported(Reason.SONG_NOT_LICENSED);
+                        break;
+                    }
+                    case "NoSearchResultsException": {
+                        song.markUnreported(Reason.NO_SEARCH_RESULTS);
+                        break;
+                    }
+                }
             }
         }
         errorWriter.close();
@@ -203,7 +182,7 @@ public class Reporter {
             error(e, "");
         }
 
-        summarise(songList);
+        summarise(songList, websiteChangeFlag);
     }
 
     private void markAsReported() throws IOException {
@@ -234,7 +213,7 @@ public class Reporter {
         }
     }
 
-    private void summarise(ArrayList<Song> songList) {
+    private void summarise(ArrayList<Song> songList, boolean websiteChangeFlag) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/summaryGUI.fxml"));
         Parent root = null;
         try {
@@ -250,10 +229,71 @@ public class Reporter {
             summaryStage.setResizable(false);
 
             SummaryGUIController summaryGUIController = fxmlLoader.getController();
-            summaryGUIController.summarise(songList);
+            summaryGUIController.summarise(songList, websiteChangeFlag);
 
             summaryStage.show();
         }
+    }
+
+    private boolean checkForLicence(boolean[] categories, int failedCategory) {
+        try {
+            return !driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[2]/div[1]/" +
+                    "div/div/div[2]/div[1]/div/div[2]")).getText().equals("Public Domain ");
+        } catch (NoSuchElementException e) {
+            websiteChangeFlag = true;
+            try {
+                driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]"));
+                return true;
+            } catch (NoSuchElementException ex) {
+                boolean licence = true;
+                for (int i = 0; i < 4; i++) {
+                    if ((i < failedCategory && !categories[i]) || i > failedCategory) {
+                        try {
+                            if (!setCategory(i)) {
+                                return true;
+                            }
+                        } catch (CategoryNotReportableException exc) {
+                            licence = false;
+                        }
+                    }
+                }
+                return licence;
+            }
+        }
+    }
+
+    private boolean setCategory(int category) throws CategoryNotReportableException {
+        try {
+            switch (category) {
+                case 0: {
+                    // increasing print count by 1
+                    Select printCount = new Select(driver.findElement(By.id("cclPrint")));
+                    printCount.selectByVisibleText("1");
+                    return true;
+                }
+                case 1: {
+                    // increasing digital count by 1
+                    Select digitalCount = new Select(driver.findElement(By.id("cclDigital")));
+                    digitalCount.selectByVisibleText("1");
+                    return true;
+                }
+                case 2: {
+                    // increasing stream count by 1
+                    Select streamCount = new Select(driver.findElement(By.id("cclRecord")));
+                    streamCount.selectByVisibleText("1");
+                    return true;
+                }
+                case 3: {
+                    // increasing translation count by 1
+                    Select translationCount = new Select(driver.findElement(By.id("cclTranslate")));
+                    translationCount.selectByVisibleText("1");
+                    return true;
+                }
+            }
+        } catch (NoSuchElementException e) {
+            throw new CategoryNotReportableException(category);
+        }
+        return false;
     }
 
     private void waitForLoadingScreen() {

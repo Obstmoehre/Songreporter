@@ -13,7 +13,15 @@ public class SummaryGUIController {
 
     public ListView<VBox> summaryList;
 
-    public void summarise(ArrayList<Song> songList) {
+    public void summarise(ArrayList<Song> songList, boolean websiteChangeFlag) {
+        if (websiteChangeFlag) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Website Change!");
+            alert.setHeaderText("Website code changed!");
+            alert.setContentText("There are changes in the websites code not affecting your reporting directly but" +
+                    " the accuracy of the reasons given for other failures while reporting");
+        }
+
         for (Song song : songList) {
             VBox songBox = new VBox();
 
