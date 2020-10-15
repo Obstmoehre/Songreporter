@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Reporter {
     private File script;
@@ -27,7 +28,8 @@ public class Reporter {
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
 
-    public void report(String eMail, String password, String browser, File script, boolean[] categories, ArrayList<Song> songList) throws IOException {
+    public void report(String eMail, String password, String browser, File script, boolean[] categories,
+                       ArrayList<Song> songList) throws IOException {
         errorWriter = new FileWriter(errorLog, true);
         this.script = script;
 
@@ -48,8 +50,7 @@ public class Reporter {
         }
         driver.get("https:/olr.ccli.com");
 
-        // login to online reporting
-
+        // waiting for login page
         boolean isloaded = false;
         int tries = 0;
 
@@ -66,11 +67,12 @@ public class Reporter {
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
+                    error(interruptedException, "sleep command failed");
                 }
             }
         }
 
+        // login to online reporting
         WebElement eMailField = driver.findElement(By.id("EmailAddress"));
         WebElement passwordField = driver.findElement(By.id("Password"));
 
@@ -78,7 +80,7 @@ public class Reporter {
         try {
             Thread.sleep(50);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            error(e, "sleep command failed");
         }
         passwordField.sendKeys(password);
         driver.findElement(By.id("sign-in")).click();
@@ -95,10 +97,12 @@ public class Reporter {
                     searchBar.clear();
                     searchBar.sendKeys(song.getCcliNumber());
                     if (init) {
-                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/div/div/div[2]/div/button[2]")).click();
+                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
+                                "div/div/div[2]/div/button[2]")).click();
                         init = false;
                     } else {
-                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/div[1]/div/div[2]/div/button[2]")).click();
+                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
+                                "div[1]/div/div[2]/div/button[2]")).click();
                     }
                 } catch (NoSuchElementException e) {
                     error(e, "Search Bar not found. The code of the website might have changed.\n" +
@@ -112,7 +116,8 @@ public class Reporter {
                     // Opening the Report-From
 
                     try {
-                        driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/tbody[1]/tr/td[7]/button")).click();
+                        driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
+                                "tbody[1]/tr/td[7]/button")).click();
                     } catch (NoSuchElementException e) {
                         throw new NoSearchResultsException(song.getCcliNumber());
                     }
@@ -144,13 +149,12 @@ public class Reporter {
                             translationCount.selectByVisibleText("1");
                         }
 
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+                        // submitting the form
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
                     } catch (NoSuchElementException e) {
                         throw new SongNotReportableException(song);
                     }
 
-                    // submitting the form
-                    //driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
                     song.markReported();
                 } catch (SongNotReportableException | NoSearchResultsException e) {
                     error(e, e.getMessage());
@@ -170,7 +174,7 @@ public class Reporter {
         try {
             markAsReported();
         } catch (IOException e) {
-            e.printStackTrace();
+            error(e, "");
         }
 
         summarise(songList);
@@ -190,7 +194,8 @@ public class Reporter {
                     new ErrorGUI().showNewErrorMessage("Failed to create new error log.");
                 }
             }
-            errorWriter.write("--------------------------------------------------\n\n");
+
+            errorWriter.write(new Date().toString() + "-------------\n\n");
             errorWriter.write("Error while reporting. Error:\n" + e.getMessage() + "\n\n");
             if (!message.equals("")) {
                 errorWriter.write(message + "\n\n");
@@ -220,7 +225,6 @@ public class Reporter {
             SummaryGUIController summaryGUIController = fxmlLoader.getController();
             summaryGUIController.summarise(songList);
 
-
             summaryStage.show();
         }
     }
@@ -242,19 +246,20 @@ public class Reporter {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
+                    error(interruptedException, "sleep command failed");
                 }
             }
         }
 
         try {
-            while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]")).getAttribute("aria-busy").equals("true")) {
+            while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"))
+                    .getAttribute("aria-busy").equals("true")) {
                 Thread.sleep(50);
             }
         } catch (NoSuchElementException e) {
             System.out.println("loading screen not found");
         } catch (InterruptedException e) {
-            error(e, "");
+            error(e, "sleep command failed");
         }
     }
 }

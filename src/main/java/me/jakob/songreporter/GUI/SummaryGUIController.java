@@ -77,7 +77,10 @@ public class SummaryGUIController {
                             " manually.)");
                 } else if (reasonLabel.getText().equals("No search result for this CCLI number [click for details]")) {
                     alert.setContentText(reasonLabel.getText() + "\n(Please check this manually. It is likely that" +
-                            "the code of the website has changed and therefore the program can't find the result.)");
+                            " the code of the website has changed and therefore the program can't find the result.)");
+                } else if (reasonLabel.getText().equals("No CCLI Songnumber [click for details]")) {
+                    alert.setContentText(reasonLabel.getText() + "\n(Please check if a CCLI Songnumber is availabe " +
+                            " for the song and insert it.)");
                 }
 
                 alert.showAndWait();
