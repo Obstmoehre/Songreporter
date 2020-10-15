@@ -24,27 +24,48 @@ public class SummaryGUIController {
             BorderPane reasonPane = new BorderPane();
             reasonPane.setPrefWidth(550);
             reasonPane.setPrefHeight(10);
-            Label titleAndCcli;
+            Label titleLabel;
             Label reasonLabel = null;
 
             if (song.getCcliNumber() == null) {
-                titleAndCcli = new Label(song.getName() + " (CCLI: No CCLI Number found)");
+                titleLabel = new Label(song.getName() + " (CCLI: No CCLI number found)");
             } else {
-                titleAndCcli = new Label(song.getName() + " (CCLI: " + song.getCcliNumber() + ")");
+                titleLabel = new Label(song.getName() + " (CCLI: " + song.getCcliNumber() + ")");
             }
 
-            titleAndCcli.setScaleX(1.5);
-            titleAndCcli.setScaleY(1.5);
+            titleLabel.setScaleX(1.5);
+            titleLabel.setScaleY(1.5);
 
             if (song.isReported()) {
-                titleAndCcli.setStyle("-fx-text-fill: #58a832");
+                titleLabel.setStyle("-fx-text-fill: #58a832");
             } else {
-                titleAndCcli.setStyle("-fx-text-fill: #ff0000");
-                reasonLabel = new Label(song.getReason() + " [click for details]");
+                switch (song.getReason()) {
+                    case NO_SEARCH_RESULTS: {
+                        reasonLabel = new Label("No search results found for this CCLI songnumber" +
+                                " [click for details");
+                        break;
+                    }
+                    case SONG_NOT_LICENSED: {
+                        reasonLabel = new Label("The song is under no license [click for details]");
+                        break;
+                    }
+                    case NO_CCLI_SONGNUMBER: {
+                        reasonLabel = new Label("No CCLI songnumber found in the songfile [click for details]");
+                        break;
+                    }
+                    case SITE_CODE_CHANGED: {
+                        reasonLabel = new Label("The code of the website has changed [click for details]");
+                        break;
+                    }
+                    default: {
+                        reasonLabel = new Label("Unknown reason");
+                    }
+                }
+                titleLabel.setStyle("-fx-text-fill: #ff0000");
                 reasonPane.setCenter(reasonLabel);
             }
 
-            titlePane.setCenter(titleAndCcli);
+            titlePane.setCenter(titleLabel);
 
             songBox.getChildren().add(titlePane);
             if (reasonLabel != null) {
@@ -71,16 +92,21 @@ public class SummaryGUIController {
                 alert.setTitle("Reason");
 
                 alert.setHeaderText(titleLabel.getText());
-                if (reasonLabel.getText().equals("Song not licensed or Website changed [click for details]")) {
-                    alert.setContentText(reasonLabel.getText() + "\n(Only possible when no song was reported" +
-                            " successfully. If so please check if any song is licensed and report the licensed songs" +
-                            " manually.)");
-                } else if (reasonLabel.getText().equals("No search result for this CCLI number [click for details]")) {
-                    alert.setContentText(reasonLabel.getText() + "\n(Please check this manually. It is likely that" +
-                            " the code of the website has changed and therefore the program can't find the result.)");
-                } else if (reasonLabel.getText().equals("No CCLI Songnumber [click for details]")) {
-                    alert.setContentText(reasonLabel.getText() + "\n(Please check if a CCLI Songnumber is availabe " +
-                            " for the song and insert it.)");
+                if (reasonLabel.getText().contains("no license")) {
+                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
+                            "\nOnly possible when no song was reported successfully. If so please check if any song" +
+                            " is licensed and report the licensed songs manually.");
+                } else if (reasonLabel.getText().contains("No search results")) {
+                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
+                            "\nPlease check this manually. It is likely that" +
+                            " the code of the website has changed and therefore the program can't find the result.");
+                } else if (reasonLabel.getText().contains("No CCLI songnumber")) {
+                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
+                            "\nPlease check if a CCLI Songnumber is availabe " +
+                            " for the song and insert it.");
+                } else if (reasonLabel.getText().contains("code")) {
+                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
+                            "\nPlease report this to me.");
                 }
 
                 alert.showAndWait();

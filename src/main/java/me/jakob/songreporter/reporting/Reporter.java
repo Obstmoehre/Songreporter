@@ -90,82 +90,108 @@ public class Reporter {
         boolean init = true;
         // reporting the songs out of the list of CCLI songnumbers
         for (Song song : songList) {
-            if (song.getCcliNumber() != null) {
-                // search for the CCLI songnumber
-                try {
-                    WebElement searchBar = driver.findElement(By.id("SearchIinput"));
-                    searchBar.clear();
-                    searchBar.sendKeys(song.getCcliNumber());
-                    if (init) {
-                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
-                                "div/div/div[2]/div/button[2]")).click();
-                        init = false;
-                    } else {
-                        driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
-                                "div[1]/div/div[2]/div/button[2]")).click();
-                    }
-                } catch (NoSuchElementException e) {
-                    error(e, "Search Bar not found. The code of the website might have changed.\n" +
-                            "Please report this to me so I can adapt my code to the changes.");
-                    break;
-                }
-
-                waitForLoadingScreen();
-
-                try {
-                    // Opening the Report-From
-
+            try {
+                if (song.getCcliNumber() != null) {
+                    // search for the CCLI songnumber
                     try {
-                        driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
-                                "tbody[1]/tr/td[7]/button")).click();
+                        WebElement searchBar = driver.findElement(By.id("SearchIinput"));
+                        searchBar.clear();
+                        searchBar.sendKeys(song.getCcliNumber());
+                        if (init) {
+                            driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
+                                    "div/div/div[2]/div/button[2]")).click();
+                            init = false;
+                        } else {
+                            driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
+                                    "div[1]/div/div[2]/div/button[2]")).click();
+                        }
                     } catch (NoSuchElementException e) {
-                        throw new NoSearchResultsException(song.getCcliNumber());
+                        error(e, "Search Bar not found. The code of the website might have changed.\n" +
+                                "Please report this to me so I can adapt my code to the changes.");
+                        break;
                     }
 
                     waitForLoadingScreen();
 
                     try {
+                        // Opening the Report-From
+
+                        try {
+                            driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
+                                    "tbody[1]/tr/td[7]/button")).click();
+                        } catch (NoSuchElementException e) {
+                            throw new NoSearchResultsException(song.getCcliNumber());
+                        }
+
+                        waitForLoadingScreen();
+
+                        boolean noLicencePossible = true;
+                        boolean success = true;
+
                         if (categories[0]) {
-                            // increasing print count by 1
-                            Select printCount = new Select(driver.findElement(By.id("cclPrint")));
-                            printCount.selectByVisibleText("1");
+                            try {// increasing print count by 1
+                                Select printCount = new Select(driver.findElement(By.id("cclPrint")));
+                                printCount.selectByVisibleText("1");
+                                noLicencePossible = false;
+                            } catch (NoSuchElementException e) {
+                                throw new SongNotReportableException(song);
+                            }
                         }
 
                         if (categories[1]) {
-                            // increasing digital count by 1
-                            Select digitalCount = new Select(driver.findElement(By.id("cclDigital")));
-                            digitalCount.selectByVisibleText("1");
+                            try {// increasing digital count by 1
+                                Select digitalCount = new Select(driver.findElement(By.id("cclDigital")));
+                                digitalCount.selectByVisibleText("1");
+                                noLicencePossible = false;
+                            } catch (NoSuchElementException e) {
+                                throw new SongNotReportableException(song);
+                            }
                         }
 
                         if (categories[2]) {
-                            // increasing stream count by 1
-                            Select streamCount = new Select(driver.findElement(By.id("cclRecord")));
-                            streamCount.selectByVisibleText("1");
+                            try {// increasing stream count by 1
+                                Select streamCount = new Select(driver.findElement(By.id("cclRecord")));
+                                streamCount.selectByVisibleText("1");
+                                noLicencePossible = false;
+                            } catch (NoSuchElementException e) {
+                                throw new SongNotReportableException(song);
+                            }
                         }
 
                         if (categories[3]) {
-                            // increasing translation count by 1
-                            Select translationCount = new Select(driver.findElement(By.id("cclTranslate")));
-                            translationCount.selectByVisibleText("1");
+                            try {
+                                // increasing translation count by 1
+                                Select translationCount = new Select(driver.findElement(By.id("cclTranslate")));
+                                translationCount.selectByVisibleText("1");
+                                noLicencePossible = false;
+                            } catch (NoSuchElementException e) {
+                                throw new SongNotReportableException(song);
+                            }
                         }
 
                         // submitting the form
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-                    } catch (NoSuchElementException e) {
-                        throw new SongNotReportableException(song);
-                    }
 
-                    song.markReported();
-                } catch (SongNotReportableException | NoSearchResultsException e) {
-                    error(e, e.getMessage());
-                    if (e.getClass() == SongNotReportableException.class) {
-                        song.markUnreported("Song not licensed or Website changed");
-                    } else if (e.getClass() == NoSearchResultsException.class) {
-                        song.markUnreported("No search result for this CCLI number");
+                        // testing command (just closing form instead of saving)
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+
+                        // final command (actually saving the inputs made)
+                        //driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+
+
+                        song.markReported();
+                    } catch (SongNotReportableException | NoSearchResultsException e) {
+                        error(e, e.getMessage());
+                        if (e.getClass() == SongNotReportableException.class) {
+                            song.markUnreported(Reason.SONG_NOT_LICENSED);
+                        } else if (e.getClass() == NoSearchResultsException.class) {
+                            song.markUnreported(Reason.NO_SEARCH_RESULTS);
+                        }
                     }
+                } else {
+                    song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                 }
-            } else {
-                song.markUnreported("No CCLI Songnumber");
+            } catch (Exception e) {
+
             }
         }
         errorWriter.close();
