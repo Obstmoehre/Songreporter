@@ -60,7 +60,7 @@ public class Reporter {
                 isloaded = true;
             } catch (NoSuchElementException e) {
                 tries++;
-                if (tries >= 10) {
+                if (tries >= 30) {
                     error(e, "E-Mail Field not found. The code of the website might have changed.\n" +
                             "Please report this to me so I can adapt my code to the changes.");
                 }
@@ -150,7 +150,8 @@ public class Reporter {
                         }
 
                         // submitting the form
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+                        //driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
                     } catch (NoSuchElementException e) {
                         throw new SongNotReportableException(song);
                     }
