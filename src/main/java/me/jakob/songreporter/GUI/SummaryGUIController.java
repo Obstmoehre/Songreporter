@@ -48,9 +48,8 @@ public class SummaryGUIController {
                 titleLabel.setStyle("-fx-text-fill: #58a832");
             } else {
                 switch (song.getReason()) {
-                    case NO_SEARCH_RESULTS: {
-                        reasonLabel = new Label("No search results found for this CCLI songnumber" +
-                                " [click for details");
+                    case INVALID_CREDENTIALS: {
+                        reasonLabel = new Label("You entered invalid Credentials");
                         break;
                     }
                     case SONG_NOT_LICENSED: {
@@ -101,23 +100,23 @@ public class SummaryGUIController {
 
                 alert.setHeaderText(titleLabel.getText());
                 if (reasonLabel.getText().contains("no license")) {
-                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
-                            "\nOnly possible when no song was reported successfully. If so please check if any song" +
-                            " is licensed and report the licensed songs manually.");
-                } else if (reasonLabel.getText().contains("No search results")) {
-                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
-                            "\nPlease check this manually. It is likely that" +
-                            " the code of the website has changed and therefore the program can't find the result.");
+                    alert.setContentText(reasonLabel.getText().replace(" [click for details]", ".") +
+                            "\nPlease report this to me."
+                    );
+                    alert.showAndWait();
                 } else if (reasonLabel.getText().contains("No CCLI songnumber")) {
-                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
-                            "\nPlease check if a CCLI Songnumber is availabe " +
-                            " for the song and insert it.");
+                    alert.setContentText(reasonLabel.getText().replace(" [click for details]", ".") +
+                            "\nPlease check if a CCLI Songnumber is availabe" +
+                            " for the song and insert it."
+                    );
+                    alert.showAndWait();
                 } else if (reasonLabel.getText().contains("code")) {
-                    alert.setContentText(reasonLabel.getText().replace("[click for details]", "") +
-                            "\nPlease report this to me.");
+                    alert.setContentText(reasonLabel.getText().replace(" [click for details]", ".") +
+                            "\nThis is only possible when no song was reported successfully. If this is the case" +
+                            " please check if any song is licensed and report the licensed songs manually."
+                    );
+                    alert.showAndWait();
                 }
-
-                alert.showAndWait();
             }
         });
     }

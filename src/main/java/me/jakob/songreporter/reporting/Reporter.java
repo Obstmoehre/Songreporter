@@ -49,137 +49,197 @@ public class Reporter {
                 driver = new OperaDriver();
                 break;
         }
-        driver.get("https:/olr.ccli.com");
 
-        // waiting for login page
-        boolean isloaded = false;
-        int tries = 0;
+        int retries = 0;
+        int maxRetries = 3;
 
-        while (!isloaded && tries < 30) {
-            try {
-                driver.findElement(By.id("EmailAddress"));
-                isloaded = true;
-            } catch (NoSuchElementException e) {
-                tries++;
-                if (tries >= 30) {
-                    error(e, "E-Mail Field not found. The code of the website might have changed.\n" +
-                            "Please report this to me so I can adapt my code to the changes.");
-                }
+        while (retries < maxRetries) {
+            driver.get("https:/olr.ccli.com");
+
+            // waiting for login page
+            boolean isloaded = false;
+            int triesBeforeTimeout = 0;
+            while (!isloaded && triesBeforeTimeout < 30) {
                 try {
-                    Thread.sleep(300);
-                } catch (InterruptedException interruptedException) {
-                    error(interruptedException, "sleep command failed");
+                    driver.findElement(By.id("EmailAddress"));
+                    isloaded = true;
+                } catch (NoSuchElementException e) {
+                    triesBeforeTimeout++;
+                    if (triesBeforeTimeout >= 30) {
+                        error(e, "E-Mail Field not found. The code of the website might have changed.\n" +
+                                "Please report this to me so I can adapt my code to the changes.");
+                    }
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException interruptedException) {
+                        error(interruptedException, "sleep command failed");
+                    }
+                }
+            }
+
+            // login to online reporting
+            try {
+                try {
+                    driver.findElement(By.id("EmailAddress")).sendKeys(eMail);
+                } catch (NoSuchElementException e) {
+                    System.out.println("Email not found");
+                    throw new WebsiteChangedException(WebsiteElement.E_MAIL_FIELD);
+                }
+
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    error(e, "sleep command failed");
+                }
+
+                try {
+                    driver.findElement(By.id("Password")).sendKeys(password);
+                } catch (NoSuchElementException e) {
+                    System.out.println("Password not found");
+                    throw new WebsiteChangedException(WebsiteElement.PASSWORD_FIELD);
+                }
+
+                try {
+                    driver.findElement(By.id("sign-in")).click();
+                } catch (NoSuchElementException e) {
+                    System.out.println("Sign In not found");
+                    throw new WebsiteChangedException(WebsiteElement.LOGIN_BUTTON);
+                }
+                retries = maxRetries;
+            } catch (WebsiteChangedException e) {
+                retries++;
+                if (retries >= maxRetries) {
+                    for (Song song : songList) {
+                        song.markUnreported(Reason.SITE_CODE_CHANGED);
+                    }
                 }
             }
         }
 
-        // login to online reporting
-        WebElement eMailField = driver.findElement(By.id("EmailAddress"));
-        WebElement passwordField = driver.findElement(By.id("Password"));
+        boolean loginSuccess = false;
 
-        eMailField.sendKeys(eMail);
         try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            error(e, "sleep command failed");
+            if (driver.findElement(By.xpath("//*[@id=\"sign-into-account\"]/div[1]/div/div/p[2]"))
+                    .getText().contains("Die E-Mailadresse oder das Passwort wurden nicht gefunden.")) {
+                for (Song song : songList) {
+                    song.markUnreported(Reason.INVALID_CREDENTIALS);
+                }
+            } else {
+                loginSuccess = true;
+            }
+        } catch (NoSuchElementException e) {
+            loginSuccess = true;
         }
-        passwordField.sendKeys(password);
-        driver.findElement(By.id("sign-in")).click();
 
-        waitForLoadingScreen();
+        if (loginSuccess) {
+            waitForLoadingScreen();
 
-        boolean init = true;
-        // reporting the songs out of the list of CCLI songnumbers
-        for (Song song : songList) {
-            try {
-                if (song.getCcliNumber() != null) {
-                    // search for the CCLI songnumber
-                    try {
-                        WebElement searchBar = driver.findElement(By.id("SearchIinput"));
-                        searchBar.clear();
-                        searchBar.sendKeys(song.getCcliNumber());
-                        if (init) {
-                            driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
-                                    "div/div/div[2]/div/button[2]")).click();
-                            init = false;
-                        } else {
-                            driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/div[2]/" +
-                                    "div[1]/div/div[2]/div/button[2]")).click();
+            boolean init = true;
+            // reporting the songs out of the list of CCLI songnumbers
+            boolean anySuccess = false;
+            for (Song song : songList) {
+                try {
+                    if (song.getCcliNumber() != null) {
+                        // search for the CCLI songnumber
+
+                        try {
+                            WebElement searchBar = driver.findElement(By.id("SearchIinput"));
+                            searchBar.clear();
+                            searchBar.sendKeys(song.getCcliNumber());
+                        } catch (NoSuchElementException e) {
+                            error(e, "Search Bar not found. If this happened to every song " +
+                                    "the code of the website might have changed.\n" +
+                                    "Please report this to me so I can adapt my code to the changes.");
+                            throw new WebsiteChangedException(WebsiteElement.SEARCH_BAR);
                         }
-                    } catch (NoSuchElementException e) {
-                        error(e, "Search Bar not found. The code of the website might have changed.\n" +
-                                "Please report this to me so I can adapt my code to the changes.");
-                        break;
-                    }
-
-                    waitForLoadingScreen();
-
-                    // Opening the Report-From
-                    try {
-                        driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
-                                "tbody[1]/tr/td[7]/button")).click();
-                    } catch (NoSuchElementException e) {
-                        throw new NoSearchResultsException(song.getCcliNumber());
-                    }
-
-                    waitForLoadingScreen();
-
-                    boolean anySuccess = false;
-
-                    try {
-                        for (int i = 0; i < categories.length; i++) {
-                            if (categories[i]) {
-                                anySuccess = setCategory(i);
+                        if (init) {
+                            try {
+                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/" +
+                                        "div[2]/div/div/div[2]/div/button[2]")).click();
+                                init = false;
+                            } catch (NoSuchElementException e) {
+                                error(e, "Initial Search Button not found. If this happened to every song " +
+                                        "the code of the website might have changed.\n" +
+                                        "Please report this to me so I can adapt my code to the changes.");
+                                throw new WebsiteChangedException(WebsiteElement.SEARCH_BUTTON_INIT);
+                            }
+                        } else {
+                            try {
+                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/" +
+                                        "div[2]/div[1]/div/div[2]/div/button[2]")).click();
+                            } catch (NoSuchElementException e) {
+                                error(e, "Secondary Search Button not found. If this happened to every song " +
+                                        "the code of the website might have changed.\n" +
+                                        "Please report this to me so I can adapt my code to the changes.");
+                                throw new WebsiteChangedException(WebsiteElement.SEARCH_BUTTON_SECONDARY);
                             }
                         }
-                    } catch (CategoryNotReportableException e) {
-                        if (anySuccess || checkForLicence(categories, e.getFailedCategory())) {
-                            throw new WebsiteChangedException();
-                        } else {
-                            throw new SongNotLicencedException(song);
+
+
+                        waitForLoadingScreen();
+
+                        // Opening the Report-From
+                        try {
+                            driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
+                                    "tbody[1]/tr/td[7]/button")).click();
+                        } catch (NoSuchElementException e) {
+                            error(e, "\"Search\" button not found. If this happened to every song " +
+                                    "the code of the website might have changed.\n" +
+                                    "Please report this to me so I can adapt my code to the changes.");
+                            throw new WebsiteChangedException(WebsiteElement.REPORT_BUTTON);
                         }
+
+                        waitForLoadingScreen();
+
+                        try {
+                            for (int i = 0; i < categories.length; i++) {
+                                if (categories[i]) {
+                                    anySuccess = setCategory(i);
+                                }
+                            }
+                        } catch (CategoryNotReportableException e) {
+                            System.out.println(anySuccess + " " + checkForLicence(categories, e.getFailedCategory()));
+                            if ((!anySuccess) || checkForLicence(categories, e.getFailedCategory())) {
+                                System.out.println("Was soll das?");
+                                throw new WebsiteChangedException(WebsiteElement.CATEGORIES);
+                            } else {
+                                throw new SongNotLicencedException(song);
+                            }
+                        }
+
+                        // submitting the form
+
+                        // testing command (just closing form instead of saving)
+                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+
+                        // final command (actually saving the inputs made)
+//                    try {
+//                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+//                    } catch (NoSuchElementException e) {
+//                        throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
+//                    }
+
+                        song.markReported();
+                    } else {
+                        song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                     }
-
-                    // submitting the form
-
-                    // testing command (just closing form instead of saving)
-                    driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
-
-                    // final command (actually saving the inputs made)
-                    try {
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-                    } catch (NoSuchElementException e) {
-                        throw new WebsiteChangedException();
-                    }
-
-                    song.markReported();
-                } else {
-                    song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
-                }
-            } catch (WebsiteChangedException | SongNotLicencedException | NoSearchResultsException e) {
-                switch (e.getClass().getName()) {
-                    case "WebsiteChangedException": {
+                } catch (WebsiteChangedException | SongNotLicencedException e) {
+                    System.out.println(e.getClass().getName());
+                    if (e.getClass() == WebsiteChangedException.class) {
                         song.markUnreported(Reason.SITE_CODE_CHANGED);
-                        break;
-                    }
-                    case "SongNotLicencedException": {
-                        song.markUnreported(Reason.SONG_NOT_LICENSED);
-                        break;
-                    }
-                    case "NoSearchResultsException": {
-                        song.markUnreported(Reason.NO_SEARCH_RESULTS);
-                        break;
+                    } else if (e.getClass() == SongNotLicencedException.class) {
+
                     }
                 }
             }
-        }
-        errorWriter.close();
-        driver.quit();
+            errorWriter.close();
+            driver.quit();
 
-        try {
-            markAsReported();
-        } catch (IOException e) {
-            error(e, "");
+            try {
+                markAsReported();
+            } catch (IOException e) {
+                error(e, "");
+            }
         }
 
         summarise(songList, websiteChangeFlag);
@@ -238,8 +298,9 @@ public class Reporter {
     private boolean checkForLicence(boolean[] categories, int failedCategory) {
         try {
             return !driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[2]/div[1]/" +
-                    "div/div/div[2]/div[1]/div/div[2]")).getText().equals("Public Domain ");
+                    "div/div/div[2]/div[1]/div/div[2]")).getText().contains("Public Domain");
         } catch (NoSuchElementException e) {
+            System.out.println("Public Domain not found");
             websiteChangeFlag = true;
             try {
                 driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]"));

@@ -1,8 +1,8 @@
 package me.jakob.songreporter.reporting;
 
 public enum Reason {
+    INVALID_CREDENTIALS,
     SONG_NOT_LICENSED,
     NO_CCLI_SONGNUMBER,
-    NO_SEARCH_RESULTS,
     SITE_CODE_CHANGED
 }
