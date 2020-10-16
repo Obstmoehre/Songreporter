@@ -29,8 +29,6 @@ public class Reporter {
     private FileWriter errorWriter;
     private boolean websiteChangeFlag;
 
-    //test
-
     public void report(String eMail, String password, String browser, File script, boolean[] categories,
                        ArrayList<Song> songList) throws IOException {
         errorWriter = new FileWriter(errorLog, true);
