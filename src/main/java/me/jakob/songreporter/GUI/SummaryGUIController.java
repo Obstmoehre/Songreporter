@@ -18,8 +18,9 @@ public class SummaryGUIController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Website Change!");
             alert.setHeaderText("Website code changed!");
-            alert.setContentText("There are changes in the websites code not affecting your reporting directly but" +
-                    " the accuracy of the reasons given for other failures while reporting");
+            alert.setContentText("There are changes in the websites code not necessarily affecting your reporting" +
+                    " directly but the accuracy of the reasons given for failures while reporting");
+            alert.showAndWait();
         }
 
         for (Song song : songList) {
@@ -50,25 +51,28 @@ public class SummaryGUIController {
                 switch (song.getReason()) {
                     case INVALID_CREDENTIALS: {
                         reasonLabel = new Label("You entered invalid Credentials");
+                        titleLabel.setStyle("-fx-text-fill: #ff0000");
                         break;
                     }
                     case SONG_NOT_LICENSED: {
-                        reasonLabel = new Label("The song is under no license [click for details]");
+                        reasonLabel = new Label("The song is under no license");
+                        titleLabel.setStyle("-fx-text-fill: #ff7700");
                         break;
                     }
                     case NO_CCLI_SONGNUMBER: {
                         reasonLabel = new Label("No CCLI songnumber found in the songfile [click for details]");
+                        titleLabel.setStyle("-fx-text-fill: #ff0000");
                         break;
                     }
                     case SITE_CODE_CHANGED: {
                         reasonLabel = new Label("The code of the website has changed [click for details]");
+                        titleLabel.setStyle("-fx-text-fill: #ff0000");
                         break;
                     }
                     default: {
                         reasonLabel = new Label("Unknown reason");
                     }
                 }
-                titleLabel.setStyle("-fx-text-fill: #ff0000");
                 reasonPane.setCenter(reasonLabel);
             }
 
@@ -99,9 +103,9 @@ public class SummaryGUIController {
                 alert.setTitle("Reason");
 
                 alert.setHeaderText(titleLabel.getText());
-                if (reasonLabel.getText().contains("no license")) {
+                if (reasonLabel.getText().contains("invalid")) {
                     alert.setContentText(reasonLabel.getText().replace(" [click for details]", ".") +
-                            "\nPlease report this to me."
+                            "\nPlease check your E-Mail and Password."
                     );
                     alert.showAndWait();
                 } else if (reasonLabel.getText().contains("No CCLI songnumber")) {
