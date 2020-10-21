@@ -1,4 +1,6 @@
-package me.jakob.songreporter.reporting;
+package me.jakob.songreporter.reporting.objects;
+
+import me.jakob.songreporter.reporting.enums.Reason;
 
 public class Song {
     private String name;

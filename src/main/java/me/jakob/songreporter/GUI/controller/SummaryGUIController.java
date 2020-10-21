@@ -1,11 +1,11 @@
-package me.jakob.songreporter.GUI;
+package me.jakob.songreporter.GUI.controller;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import me.jakob.songreporter.reporting.Song;
+import me.jakob.songreporter.reporting.objects.Song;
 
 import java.util.ArrayList;
 

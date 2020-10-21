@@ -1,4 +1,4 @@
-package me.jakob.songreporter.reporting;
+package me.jakob.songreporter.reporting.enums;
 
 public enum Reason {
     INVALID_CREDENTIALS,

@@ -1,4 +1,4 @@
-package me.jakob.songreporter.GUI;
+package me.jakob.songreporter.GUI.elements;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;

@@ -1,4 +1,4 @@
-package me.jakob.songreporter.reporting;
+package me.jakob.songreporter.reporting.exceptions;
 
 public class WrongCredentialsException extends Exception {
 
