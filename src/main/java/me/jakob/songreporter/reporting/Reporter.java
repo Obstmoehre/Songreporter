@@ -201,14 +201,14 @@ public class Reporter {
                         // submitting the form
 
                         // testing command (just closing form instead of saving)
-                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+//                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
 
                         // final command (actually saving the inputs made)
-//                        try {
-//                            driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-//                        } catch (NoSuchElementException e) {
-//                            throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
-//                        }
+                        try {
+                            driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+                        } catch (NoSuchElementException e) {
+                            throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
+                        }
 
                         song.markReported();
                     } else {
