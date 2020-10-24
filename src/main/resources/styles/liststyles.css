@@ -1,4 +1,11 @@
 #summaryList {
     -fx-selection-bar: #38383c;
     -fx-selection-bar-non-focused: #38383c;
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 610;
+    -fx-pref-height: 410;
+}
+
+.list-cell {
+    -fx-cell-size: 50;
 }
