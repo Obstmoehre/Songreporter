@@ -175,8 +175,8 @@ public class Reporter {
 
                         // Opening the Report-From
                         try {
-                            driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/table/" +
-                                    "tbody[1]/tr/td[7]/button")).click();
+                            driver.findElement(By.xpath("//*[@id=\"SearchResultsAlbums\"]/div[2]/div/div/div/div/" +
+                                    "table/tbody/tr/td[7]/button")).click();
                         } catch (NoSuchElementException e) {
                             throw new WebsiteChangedException(WebsiteElement.REPORT_BUTTON);
                         }
@@ -209,6 +209,8 @@ public class Reporter {
                         } catch (NoSuchElementException e) {
                             throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
                         }
+
+                        waitForLoadingScreen();
 
                         song.markReported();
                     } else {
