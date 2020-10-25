@@ -7,7 +7,5 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="me.jakob.songreporter.GUI.controller.SummaryGUIController"
             stylesheets="/styles/liststyles.css">
-   <children>
-      <ListView fx:id="summaryList" prefHeight="400.0" prefWidth="600.0" />
-   </children>
+   <ListView fx:id="summaryList"/>
 </AnchorPane>
