@@ -33,6 +33,20 @@ public class Reporter {
     private FileWriter errorWriter;
     private boolean websiteChangeFlag;
 
+    public Reporter() {
+        super();
+    }
+
+    private boolean testMode;
+    private boolean delayMode;
+    private int delayMillis;
+
+    public Reporter(boolean testMode, boolean delayMode, int delayMillis) {
+        this.testMode = testMode;
+        this.delayMode = delayMode;
+        this.delayMillis = delayMillis;
+    }
+
     public void report(String eMail, String password, String browser, File script, boolean[] categories,
                        ArrayList<Song> songList) throws IOException {
         errorWriter = new FileWriter(errorLog, true);
@@ -140,8 +154,9 @@ public class Reporter {
             waitForLoadingScreen();
 
             boolean init = true;
-            // reporting the songs out of the list of CCLI songnumbers
             boolean anySuccess = false;
+
+            // reporting the songs out of the list of CCLI songnumbers
             for (Song song : songList) {
                 try {
                     if (song.getCcliNumber() != null) {
@@ -154,6 +169,15 @@ public class Reporter {
                         } catch (NoSuchElementException e) {
                             throw new WebsiteChangedException(WebsiteElement.SEARCH_BAR);
                         }
+
+                        if (delayMode) {
+                            try {
+                                Thread.sleep(delayMillis);
+                            } catch (InterruptedException e) {
+                                error(e, "sleep command failed");
+                            }
+                        }
+
                         if (init) {
                             try {
                                 driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/" +
@@ -172,6 +196,13 @@ public class Reporter {
                         }
 
                         waitForLoadingScreen();
+                        if (delayMode) {
+                            try {
+                                Thread.sleep(delayMillis);
+                            } catch (InterruptedException e) {
+                                error(e, "sleep command failed");
+                            }
+                        }
 
                         // Opening the Report-From
                         try {
@@ -182,6 +213,13 @@ public class Reporter {
                         }
 
                         waitForLoadingScreen();
+                        if (delayMode) {
+                            try {
+                                Thread.sleep(delayMillis);
+                            } catch (InterruptedException e) {
+                                error(e, "sleep command failed");
+                            }
+                        }
 
                         try {
                             for (int i = 0; i < categories.length; i++) {
@@ -197,17 +235,32 @@ public class Reporter {
                                 throw new SongNotLicencedException(song);
                             }
                         }
+                        if (delayMode) {
+                            try {
+                                Thread.sleep(delayMillis);
+                            } catch (InterruptedException e) {
+                                error(e, "sleep command failed");
+                            }
+                        }
 
                         // submitting the form
-
-                        // testing command (just closing form instead of saving)
-//                        driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
-
-                        // final command (actually saving the inputs made)
-                        try {
-                            driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
-                        } catch (NoSuchElementException e) {
-                            throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
+                        if (testMode) {
+                            // testing command (just closing form instead of saving)
+                            driver.findElement(By.xpath("//*[@id=\"ModalReportSongModal\"]/button/span")).click();
+                        } else {
+                            // final command (actually saving the inputs made)
+                            try {
+                                driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]")).click();
+                            } catch (NoSuchElementException e) {
+                                throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
+                            }
+                        }
+                        if (delayMode) {
+                            try {
+                                Thread.sleep(delayMillis);
+                            } catch (InterruptedException e) {
+                                error(e, "sleep command failed");
+                            }
                         }
 
                         waitForLoadingScreen();
