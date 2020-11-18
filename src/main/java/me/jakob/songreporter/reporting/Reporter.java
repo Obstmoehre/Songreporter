@@ -38,12 +38,10 @@ public class Reporter {
     }
 
     private boolean testMode;
-    private boolean delayMode;
     private int delayMillis;
 
-    public Reporter(boolean testMode, boolean delayMode, int delayMillis) {
+    public Reporter(boolean testMode, int delayMillis) {
         this.testMode = testMode;
-        this.delayMode = delayMode;
         this.delayMillis = delayMillis;
     }
 
@@ -170,7 +168,7 @@ public class Reporter {
                             throw new WebsiteChangedException(WebsiteElement.SEARCH_BAR);
                         }
 
-                        if (delayMode) {
+                        if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
                             } catch (InterruptedException e) {
@@ -196,7 +194,7 @@ public class Reporter {
                         }
 
                         waitForLoadingScreen();
-                        if (delayMode) {
+                        if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
                             } catch (InterruptedException e) {
@@ -213,7 +211,7 @@ public class Reporter {
                         }
 
                         waitForLoadingScreen();
-                        if (delayMode) {
+                        if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
                             } catch (InterruptedException e) {
@@ -235,7 +233,7 @@ public class Reporter {
                                 throw new SongNotLicencedException(song);
                             }
                         }
-                        if (delayMode) {
+                        if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
                             } catch (InterruptedException e) {
@@ -255,7 +253,7 @@ public class Reporter {
                                 throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
                             }
                         }
-                        if (delayMode) {
+                        if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
                             } catch (InterruptedException e) {
