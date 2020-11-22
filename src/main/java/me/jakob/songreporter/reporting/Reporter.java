@@ -178,22 +178,23 @@ public class Reporter {
 
                         if (init) {
                             try {
-                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/" +
-                                        "div[2]/div/div/div[2]/div/button[2]")).click();
+                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[2]" +
+                                        "/div[2]/div/div/div[2]/div/button[2]")).click();
                                 init = false;
                             } catch (NoSuchElementException e) {
                                 throw new WebsiteChangedException(WebsiteElement.SEARCH_BUTTON_INIT);
                             }
                         } else {
                             try {
-                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[1]/" +
-                                        "div[2]/div[1]/div/div[2]/div/button[2]")).click();
+                                driver.findElement(By.xpath("//*[@id=\"MainWrapper\"]/div/div[1]/div/main/div[2]" +
+                                        "/div[2]/div[1]/div/div[2]/div/button[2]")).click();
                             } catch (NoSuchElementException e) {
                                 throw new WebsiteChangedException(WebsiteElement.SEARCH_BUTTON_SECONDARY);
                             }
                         }
 
                         waitForLoadingScreen();
+
                         if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
@@ -226,7 +227,7 @@ public class Reporter {
                                 }
                             }
                         } catch (CategoryNotReportableException e) {
-                            if ((!anySuccess) || checkForLicence(categories, e.getFailedCategory())) {
+                            if ((!anySuccess && songList.indexOf(song) > 0) || checkForLicence(categories, e.getFailedCategory())) {
                                 throw new WebsiteChangedException(WebsiteElement.CATEGORIES);
                             } else {
                                 driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button")).click();
@@ -253,6 +254,15 @@ public class Reporter {
                                 throw new WebsiteChangedException(WebsiteElement.SAVE_BUTTON);
                             }
                         }
+
+                        song.markReported();
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            error(e, "sleep command failed");
+                        }
+
                         if (delayMillis > 0) {
                             try {
                                 Thread.sleep(delayMillis);
@@ -262,8 +272,6 @@ public class Reporter {
                         }
 
                         waitForLoadingScreen();
-
-                        song.markReported();
                     } else {
                         song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                     }
@@ -342,6 +350,7 @@ public class Reporter {
         }
     }
 
+    //returns false when song is under no license
     private boolean checkForLicence(boolean[] categories, int failedCategory) {
         try {
             return !driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[2]/div[1]/" +
