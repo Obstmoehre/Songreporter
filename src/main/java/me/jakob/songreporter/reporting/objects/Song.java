@@ -1,10 +1,12 @@
-package me.jakob.songreporter.reporting;
+package me.jakob.songreporter.reporting.objects;
+
+import me.jakob.songreporter.reporting.enums.Reason;
 
 public class Song {
     private String name;
     private String ccliNumber;
     private boolean reported;
-    private String reason = "";
+    private Reason reason;
 
     public Song(String name) {
         this.name = name;
@@ -30,7 +32,7 @@ public class Song {
         return reported;
     }
 
-    public void markUnreported(String reason) {
+    public void markUnreported(Reason reason) {
         reported = false;
         this.reason = reason;
     }
@@ -39,11 +41,12 @@ public class Song {
         this.reported = true;
     }
 
-    public String getReason() {
+    public Reason getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(Reason reason) {
         this.reason = reason;
     }
 }
+

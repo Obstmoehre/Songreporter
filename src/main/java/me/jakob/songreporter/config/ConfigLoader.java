@@ -3,7 +3,7 @@ package me.jakob.songreporter.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import me.jakob.songreporter.GUI.ErrorGUI;
+import me.jakob.songreporter.GUI.elements.ErrorGUI;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

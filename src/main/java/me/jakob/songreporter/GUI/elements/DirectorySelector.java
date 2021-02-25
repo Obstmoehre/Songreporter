@@ -1,4 +1,4 @@
-package me.jakob.songreporter.GUI;
+package me.jakob.songreporter.GUI.elements;
 
 import javafx.stage.DirectoryChooser;
 

@@ -1,9 +1,11 @@
-package me.jakob.songreporter.GUI;
+package me.jakob.songreporter.GUI.controller;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import me.jakob.songreporter.GUI.elements.DirectorySelector;
+import me.jakob.songreporter.GUI.elements.FileSelector;
 import me.jakob.songreporter.config.ConfigLoader;
 import me.jakob.songreporter.config.ConfigManager;
 import me.jakob.songreporter.reporting.CCLIReader;
