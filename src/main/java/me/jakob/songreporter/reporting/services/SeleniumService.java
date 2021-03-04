@@ -7,22 +7,22 @@ import me.jakob.songreporter.reporting.exceptions.CCLILoginException;
 import me.jakob.songreporter.reporting.exceptions.TimeoutException;
 import me.jakob.songreporter.reporting.exceptions.WebsiteChangedException;
 import me.jakob.songreporter.reporting.exceptions.WrongCredentialsException;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.opera.OperaDriver;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.function.Function;
 
 public class SeleniumService {
     private WebDriver driver;
-    private String browser;
+    private final String browser;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
 
@@ -51,6 +51,7 @@ public class SeleniumService {
 
         while (retries < maxRetries) {
             driver.get("https://olr.ccli.com");
+            waitForPageLoad();
 
             // waiting for login page
             boolean loaded = false;
@@ -134,7 +135,6 @@ public class SeleniumService {
                 tries++;
                 if (tries >= maxTries) {
                     if (driver.getCurrentUrl().contains("reporting.ccli.com")) {
-                        websiteChangeFlag = false;
                         throw new WebsiteChangedException(WebsiteElement.LOADING_SCREEN);
                     } else {
                         throw new WrongCredentialsException();
@@ -161,11 +161,19 @@ public class SeleniumService {
         try {
             return !driver.findElement(By.xpath("//*[@id=\"sign-into-account\"]/div[1]/div/div/p[2]"))
                     .getText().contains("Die E-Mailadresse oder das Passwort wurden nicht gefunden.");
-        } catch (NoSuchElementException e) {
-            websiteChangeFlag = true;
-            return true;
-        } catch (StaleElementReferenceException e) {
+        } catch (NoSuchElementException | StaleElementReferenceException e) {
             return true;
         }
+    }
+
+    private void waitForPageLoad() {
+        Wait<WebDriver> wait = new WebDriverWait(driver, 30);
+        wait.until(driver -> {
+            System.out.println("Current Window State: "
+                    + ((JavascriptExecutor) driver).executeScript("return document.readyState"));
+            return String
+                    .valueOf(((JavascriptExecutor) driver).executeScript("return document.readyState"))
+                    .equals("complete");
+        });
     }
 }
