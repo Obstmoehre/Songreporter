@@ -5,15 +5,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import me.jakob.songreporter.GUI.elements.ErrorGUI;
 import me.jakob.songreporter.GUI.controller.SummaryGUIController;
+import me.jakob.songreporter.GUI.elements.ErrorGUI;
+import me.jakob.songreporter.REST.Songdetails;
 import me.jakob.songreporter.reporting.enums.Reason;
 import me.jakob.songreporter.reporting.enums.WebsiteElement;
 import me.jakob.songreporter.reporting.exceptions.CategoryNotReportableException;
-import me.jakob.songreporter.reporting.exceptions.SongNotLicencedException;
 import me.jakob.songreporter.reporting.exceptions.WebsiteChangedException;
 import me.jakob.songreporter.reporting.exceptions.WrongCredentialsException;
 import me.jakob.songreporter.reporting.objects.Song;
+import me.jakob.songreporter.reporting.services.RESTService;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -32,6 +33,7 @@ public class Reporter {
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
     private boolean websiteChangeFlag;
+    private RESTService restService;
 
     public Reporter() {
         super();
@@ -151,6 +153,8 @@ public class Reporter {
         if (loginSuccess) {
             waitForLoadingScreen();
 
+            restService = new RESTService(driver.manage().getCookies());
+
             boolean init = true;
             boolean anySuccess = false;
 
@@ -158,6 +162,17 @@ public class Reporter {
             for (Song song : songList) {
                 try {
                     if (song.getCcliNumber() != null) {
+                        Songdetails songdetails = restService.fetchSongdetails(song.getCcliNumber(), driver.manage().getCookies());
+                        if (songdetails.isPublicDomain()) {
+                            song.markUnreported(Reason.SONG_NOT_LICENSED);
+                            break;
+                        }
+                        Songdetails[] songdetailsArray = new Songdetails[1];
+                        songdetailsArray[0] = songdetails;
+                        int res = restService.reportSongs(songdetailsArray, driver.manage().getCookies());
+                        System.out.println(res);
+                        System.out.println();
+
                         // search for the CCLI songnumber
 
                         try {
@@ -227,12 +242,7 @@ public class Reporter {
                                 }
                             }
                         } catch (CategoryNotReportableException e) {
-                            if ((!anySuccess && songList.indexOf(song) > 0) || checkForLicence(categories, e.getFailedCategory())) {
-                                throw new WebsiteChangedException(WebsiteElement.CATEGORIES);
-                            } else {
-                                driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button")).click();
-                                throw new SongNotLicencedException(song);
-                            }
+                            throw new WebsiteChangedException(WebsiteElement.CATEGORIES);
                         }
                         if (delayMillis > 0) {
                             try {
@@ -275,16 +285,12 @@ public class Reporter {
                     } else {
                         song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                     }
-                } catch (WebsiteChangedException | SongNotLicencedException e) {
-                    if (e.getClass() == WebsiteChangedException.class) {
-                        error(e, "Changed Element: " + ((WebsiteChangedException) e).getChangedElement());
-                        for (Song song1 : songList) {
-                            song1.markUnreported(Reason.SITE_CODE_CHANGED);
-                        }
-                        break;
-                    } else if (e.getClass() == SongNotLicencedException.class) {
-                        song.markUnreported(Reason.SONG_NOT_LICENSED);
+                } catch (WebsiteChangedException e) {
+                    error(e, "Changed Element: " + e.getChangedElement());
+                    for (Song song1 : songList) {
+                        song1.markUnreported(Reason.SITE_CODE_CHANGED);
                     }
+                    break;
                 }
             }
             errorWriter.close();
@@ -347,34 +353,6 @@ public class Reporter {
             summaryGUIController.summarise(songList, websiteChangeFlag);
 
             summaryStage.show();
-        }
-    }
-
-    //returns false when song is under no license
-    private boolean checkForLicence(boolean[] categories, int failedCategory) {
-        try {
-            return !driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[2]/div[1]/" +
-                    "div/div/div[2]/div[1]/div/div[2]")).getText().contains("Public Domain");
-        } catch (NoSuchElementException e) {
-            websiteChangeFlag = true;
-            try {
-                driver.findElement(By.xpath("//*[@id=\"ModalReportSongForm\"]/div[3]/button[2]"));
-                return true;
-            } catch (NoSuchElementException ex) {
-                boolean licence = true;
-                for (int i = 0; i < 4; i++) {
-                    if ((i < failedCategory && !categories[i]) || i > failedCategory) {
-                        try {
-                            if (!setCategory(i)) {
-                                return true;
-                            }
-                        } catch (CategoryNotReportableException exc) {
-                            licence = false;
-                        }
-                    }
-                }
-                return licence;
-            }
         }
     }
 
