@@ -29,62 +29,47 @@ public class RESTService {
             return false;
         }
     }).create();
-    private HashMap<String, String> cookies;
+    private final HashMap<String, String> cookies;
 
-    public RESTService(Set<Cookie> cookieSet) {
-        this.cookies = convertCookies(cookieSet);
+
+    public RESTService(HashMap<String, String> cookies) {
+        this.cookies = cookies;
     }
 
     public Songdetails fetchSongdetails(String ccliSongNumber, Set<Cookie> cookieSet) {
-        String res = null;
-        HashMap<String, String> cookies = convertCookies(cookieSet);
+        String json = null;
+
+        ArrayList<String> cookieNames = new ArrayList<>();
+        cookieNames.add("ARRAffinity");
+        cookieNames.add("ARRAffinitySameSite");
+        cookieNames.add("CCLI_AUTH");
+        cookieNames.add("CCLI_JWT_AUTH");
+        cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
+        cookieNames.add(".AspNetCore.Session");
 
         Request request = new Request.Builder()
                 .url("https://reporting.ccli.com/api/detail/song/" + ccliSongNumber)
                 .addHeader("Accept", "application/json, text/plain, */*")
-//                .addHeader("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json;charset=utf-8")
-                .addHeader("Cookie",
-//                        "_ga=" + cookies.get("_ga") + "; " +
-//                        "_hjid=" + cookies.get("_hjid") + "; " +
-                        "ARRAffinity=" + cookies.get("ARRAffinity") + "; " +
-                        "ARRAffinitySameSite=" + cookies.get("ARRAffinitySameSite") + "; " +
-//                        "_gid=" + cookies.get("_gid") + "; " +
-//                        "_hjTLDTest=" + cookies.get("_hjTLDTest") + "; " +
-//                        "_hjAbsoluteSessionInProgress=" + cookies.get("_hjAbsoluteSessionInProgress") + "; " +
-                        "CCLI_AUTH=" + cookies.get("CCLI_AUTH") + "; " +
-                        "CCLI_JWT_AUTH=" + cookies.get("CCLI_JWT_AUTH") + "; " +
-                        ".AspNetCore.Antiforgery.w5W7x28NAIs=" + cookies.get(".AspNetCore.Antiforgery.w5W7x28NAIs") + "; " +
-                        ".AspNetCore.Session=" + cookies.get(".AspNetCore.Session"))
-//                .addHeader("Host", "reporting.ccli.com")
-//                .addHeader("Referer", "https://reporting.ccli.com/search?s=" + ccliSongNumber + "&page=1&category=all")
-//                .addHeader("Sec-Fetch-Dest", "empty")
-//                .addHeader("Sec-Fetch-Mode", "cors")
-//                .addHeader("Sec-Fetch-Site", "same-origin")
-//                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36")
-//                .addHeader("client-locale", "de-DE")
-//                .addHeader("dnt", "1")
+                .addHeader("Cookie", buildCookieString(cookieNames, this.cookies))
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (response.body() != null) {
-                res = response.body().string();
+        Response response = performRequest(request);
+        try {
+            if (response != null && response.body() != null) {
+                json = response.body().string();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return gson.fromJson(res, Songdetails.class);
+        return this.gson.fromJson(json, Songdetails.class);
     }
 
-    public int reportSongs(Songdetails[] songs, Set<Cookie> cookieSet) {
-        int res = 0;
-        HashMap<String, String> cookies = convertCookies(cookieSet);
+    public int reportSongs(Songdetails[] songs) {
         String requestVerificationToken = getRequestVerificationToken(cookies);
-        String reportPayload = gson.toJson(new ReportPayload(songs));
-
-        RequestBody body = RequestBody.create(MediaType.parse("application/json"), reportPayload);
+        String reportPayload = this.gson.toJson(new ReportPayload(songs));
 
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -93,6 +78,7 @@ public class RESTService {
                 .addPathSegment("api")
                 .addPathSegment("report")
                 .build();
+        ArrayList<String> cookieNames = new ArrayList<>();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -100,20 +86,12 @@ public class RESTService {
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json;charset=utf-8")
                 .addHeader("Cookie",
-//                        "_ga=" + cookies.get("_ga") + "; " +
-//                        "_hjid=" + cookies.get("_hjid") + "; " +
                         "ARRAffinity=" + cookies.get("ARRAffinity") + "; " +
                         "ARRAffinitySameSite=" + cookies.get("ARRAffinitySameSite") + "; " +
-//                        "_gid=" + cookies.get("_gid") + "; " +
-//                        "_hjTLDTest=" + cookies.get("_hjTLDTest") + "; " +
                         "CCLI_AUTH=" + cookies.get("CCLI_AUTH") + "; " +
                         "CCLI_JWT_AUTH=" + cookies.get("CCLI_JWT_AUTH") + "; " +
                         ".AspNetCore.Antiforgery.w5W7x28NAIs=" + cookies.get(".AspNetCore.Antiforgery.w5W7x28NAIs") + "; " +
                         ".AspNetCore.Session=" + cookies.get(".AspNetCore.Session"))
-//                        "_gat_UA-11918520-51=" + cookies.get("_gat_UA-11918520-51") + "; " +
-//                        "_gat_UA-11918520-80=" + cookies.get("_gat_UA-11918520-80") + "; " +
-//                        "_hjFirstSeen=" + cookies.get("_hjFirstSeen") + "; " +
-//                        "_hjAbsoluteSessionInProgress=" + cookies.get("_hjAbsoluteSessionInProgress"))
                 .addHeader("Host", "reporting.ccli.com")
                 .addHeader("Origin", "https://reporting.ccli.com")
                 .addHeader("Refer", "https://reporting.ccli.com/search?s=" + songs[0].getCcliSongNo() + "&page=1&category=all")
@@ -126,18 +104,15 @@ public class RESTService {
                 .addHeader("dnt", "1")
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
                 .addHeader("RequestVerificationToken", requestVerificationToken) //verification token still missing here
-                .method("POST", body)
+                .post(RequestBody.create(MediaType.parse("application/json"), reportPayload))
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (response.body() != null) {
-                res = response.code();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        Response response = performRequest(request);
+        if (response != null && response.body() != null) {
+            return response.code();
+        } else {
+            return -1;
         }
-
-        return res;
     }
 
     private String getRequestVerificationToken(HashMap<String, String> cookies) {
@@ -150,12 +125,8 @@ public class RESTService {
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie",
-//                        "_ga=" + cookies.get("_ga") + "; " +
-//                        "_hjid=" + cookies.get("_hjid") + "; " +
                         "ARRAffinity=" + cookies.get("ARRAffinity") + "; " +
                         "ARRAffinitySameSite=" + cookies.get("ARRAffinitySameSite") + "; " +
-//                        "_gid=" + cookies.get("_gid") + "; " +
-//                        "_hjTLDTest=" + cookies.get("_hjTLDTest") + "; " +
                         "CCLI_AUTH=" + cookies.get("CCLI_AUTH") + "; " +
                         "CCLI_JWT_AUTH=" + cookies.get("CCLI_JWT_AUTH") + "; " +
                         ".AspNetCore.Session=" + cookies.get(".AspNetCore.Session"))
@@ -165,48 +136,36 @@ public class RESTService {
                 .addHeader("Cache-Control", "no-cache")
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            if (response.body() != null) {
-                requestVerificationToken = response.body().string().replace("\"", "");
-                responseHeader = response.header("Set-Cookie");
-                if (responseHeader != null) {
-                    cookies.put(responseHeader.substring(0, responseHeader.indexOf("=")),
-                            responseHeader.substring(responseHeader.indexOf("=") + 1, responseHeader.indexOf(";")));
+        Response response = performRequest(request);
+
+            if (response != null && response.body() != null) {
+                try {
+                    requestVerificationToken = response.body().string().replace("\"", "");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return requestVerificationToken;
     }
 
     private Response performRequest(Request request) {
-        Response res = null;
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = this.client.newCall(request).execute()) {
             if (response.body() != null) {
-                res = response;
                 putCookies(response.headers("Set-Cookie"));
+                return response;
+            } else {
+                return null;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-
-        return res;
-    }
-
-    private HashMap<String, String> convertCookies(Set<Cookie> cookieSet) {
-        HashMap<String, String> cookieMap = new HashMap<>();
-        for (Cookie cookie : cookieSet) {
-            cookieMap.put(cookie.getName(), cookie.getValue());
-        }
-
-        return cookieMap;
     }
 
     private void putCookies(List<String> headerValues) {
         for (String headerValue : headerValues) {
-            cookies.put(headerValue.substring(0, headerValue.indexOf("=")),
+            this.cookies.put(headerValue.substring(0, headerValue.indexOf("=")),
                     headerValue.substring(headerValue.indexOf("=")+1, headerValue.indexOf(";")));
         }
     }
