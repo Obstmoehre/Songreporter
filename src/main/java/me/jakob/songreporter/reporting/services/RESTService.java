@@ -35,19 +35,11 @@ public class RESTService {
     }
 
     public Songdetails fetchSongdetails(String ccliSongNumber) {
-        String json = null;
+        String json;
 
         ArrayList<String> cookieNames = new ArrayList<>();
         cookieNames.add("ARRAffinity");
         cookieNames.add("ARRAffinitySameSite");
-        cookieNames.add("_ga");
-        cookieNames.add("_gid");
-        cookieNames.add("_gat_UA-11918520-51");
-        cookieNames.add("_gat_UA-11918520-80");
-        cookieNames.add("_hjTLDTest");
-        cookieNames.add("_hjid");
-        cookieNames.add("_hjFirstSeen");
-        cookieNames.add("_hjAbsoluteSessionInProgress");
         cookieNames.add("CCLI_AUTH");
         cookieNames.add("CCLI_JWT_AUTH");
         cookieNames.add(".AspNetCore.Session");
@@ -55,7 +47,7 @@ public class RESTService {
 
         Request request = new Request.Builder()
                 .url("https://reporting.ccli.com/api/detail/song/" + ccliSongNumber)
-                .addHeader("Accept", "application/json, text/plain, */*")
+                .addHeader("Accept", "application/json;charset=utf-8")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json;charset=utf-8")
                 .addHeader("Cookie", buildCookieString(cookieNames))
@@ -63,17 +55,17 @@ public class RESTService {
                         + ccliSongNumber + "&page=1&category=all")
                 .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
                         "(KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
-                .addHeader("client-locale", "de-DE")
-                .addHeader("Accept-Encoding", "")
                 .build();
 
-        Response response = performRequest(request);
-        try {
-            if (response != null && response.body() != null) {
+        try (Response response = this.client.newCall(request).execute()) {
+            if (response.body() != null) {
                 json = response.body().string();
+            } else {
+                return null;
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
 
         return this.gson.fromJson(json, Songdetails.class);
@@ -119,17 +111,21 @@ public class RESTService {
                 .post(RequestBody.create(MediaType.parse("application/json"), reportPayload))
                 .build();
 
-        Response response = performRequest(request);
-        if (response != null && response.body() != null) {
-            return response.code();
-        } else {
+        try (Response response = this.client.newCall(request).execute()) {
+            if (response.body() != null) {
+                putCookies(response.headers("Set-Cookie"));
+                return response.code();
+            } else {
+                return -1;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
             return -1;
         }
     }
 
     private String getRequestVerificationToken(HashMap<String, String> cookies) {
-        String responseHeader;
-        String requestVerificationToken = null;
+        String requestVerificationToken;
 
         ArrayList<String> cookieNames = new ArrayList<>();
         cookieNames.add("ARRAffinity");
@@ -150,24 +146,10 @@ public class RESTService {
                 .addHeader("Cache-Control", "no-cache")
                 .build();
 
-        Response response = performRequest(request);
-
-            if (response != null && response.body() != null) {
-                try {
-                    requestVerificationToken = response.body().string().replace("\"", "");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        return requestVerificationToken;
-    }
-
-    private Response performRequest(Request request) {
         try (Response response = this.client.newCall(request).execute()) {
             if (response.body() != null) {
                 putCookies(response.headers("Set-Cookie"));
-                return response;
+                requestVerificationToken = response.body().string().replace("\"", "");
             } else {
                 return null;
             }
@@ -175,12 +157,14 @@ public class RESTService {
             e.printStackTrace();
             return null;
         }
+
+        return requestVerificationToken;
     }
 
     private void putCookies(List<String> headerValues) {
         for (String headerValue : headerValues) {
             this.cookies.put(headerValue.substring(0, headerValue.indexOf("=")),
-                    headerValue.substring(headerValue.indexOf("=")+1, headerValue.indexOf(";")));
+                    headerValue.substring(headerValue.indexOf("=") + 1, headerValue.indexOf(";")));
         }
     }
 
