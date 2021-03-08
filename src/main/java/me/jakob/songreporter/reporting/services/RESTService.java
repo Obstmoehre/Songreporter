@@ -7,13 +7,11 @@ import com.google.gson.GsonBuilder;
 import me.jakob.songreporter.REST.ReportPayload;
 import me.jakob.songreporter.REST.Songdetails;
 import okhttp3.*;
-import org.openqa.selenium.Cookie;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 public class RESTService {
     private final OkHttpClient client = new OkHttpClient();
@@ -36,23 +34,37 @@ public class RESTService {
         this.cookies = cookies;
     }
 
-    public Songdetails fetchSongdetails(String ccliSongNumber, Set<Cookie> cookieSet) {
+    public Songdetails fetchSongdetails(String ccliSongNumber) {
         String json = null;
 
         ArrayList<String> cookieNames = new ArrayList<>();
         cookieNames.add("ARRAffinity");
         cookieNames.add("ARRAffinitySameSite");
+        cookieNames.add("_ga");
+        cookieNames.add("_gid");
+        cookieNames.add("_gat_UA-11918520-51");
+        cookieNames.add("_gat_UA-11918520-80");
+        cookieNames.add("_hjTLDTest");
+        cookieNames.add("_hjid");
+        cookieNames.add("_hjFirstSeen");
+        cookieNames.add("_hjAbsoluteSessionInProgress");
         cookieNames.add("CCLI_AUTH");
         cookieNames.add("CCLI_JWT_AUTH");
-        cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
         cookieNames.add(".AspNetCore.Session");
+        cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
 
         Request request = new Request.Builder()
                 .url("https://reporting.ccli.com/api/detail/song/" + ccliSongNumber)
                 .addHeader("Accept", "application/json, text/plain, */*")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json;charset=utf-8")
-                .addHeader("Cookie", buildCookieString(cookieNames, this.cookies))
+                .addHeader("Cookie", buildCookieString(cookieNames))
+                .addHeader("Refer", "https://reporting.ccli.com/search?s="
+                        + ccliSongNumber + "&page=1&category=all")
+                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+                        "(KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
+                .addHeader("client-locale", "de-DE")
+                .addHeader("Accept-Encoding", "")
                 .build();
 
         Response response = performRequest(request);
@@ -67,7 +79,7 @@ public class RESTService {
         return this.gson.fromJson(json, Songdetails.class);
     }
 
-    public int reportSongs(Songdetails[] songs) {
+    public int reportSongs(ArrayList<Songdetails> songs) {
         String requestVerificationToken = getRequestVerificationToken(cookies);
         String reportPayload = this.gson.toJson(new ReportPayload(songs));
 
@@ -78,23 +90,23 @@ public class RESTService {
                 .addPathSegment("api")
                 .addPathSegment("report")
                 .build();
+
         ArrayList<String> cookieNames = new ArrayList<>();
+        cookieNames.add("ARRAffinity");
+        cookieNames.add("ARRAffinitySameSite");
+        cookieNames.add("CCLI_AUTH");
+        cookieNames.add("CCLI_JWT_AUTH");
+        cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
+        cookieNames.add(".AspNetCore.Session");
 
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Accept", "application/json, text/plain, */*")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json;charset=utf-8")
-                .addHeader("Cookie",
-                        "ARRAffinity=" + cookies.get("ARRAffinity") + "; " +
-                        "ARRAffinitySameSite=" + cookies.get("ARRAffinitySameSite") + "; " +
-                        "CCLI_AUTH=" + cookies.get("CCLI_AUTH") + "; " +
-                        "CCLI_JWT_AUTH=" + cookies.get("CCLI_JWT_AUTH") + "; " +
-                        ".AspNetCore.Antiforgery.w5W7x28NAIs=" + cookies.get(".AspNetCore.Antiforgery.w5W7x28NAIs") + "; " +
-                        ".AspNetCore.Session=" + cookies.get(".AspNetCore.Session"))
+                .addHeader("Cookie", buildCookieString(cookieNames))
                 .addHeader("Host", "reporting.ccli.com")
                 .addHeader("Origin", "https://reporting.ccli.com")
-                .addHeader("Refer", "https://reporting.ccli.com/search?s=" + songs[0].getCcliSongNo() + "&page=1&category=all")
                 .addHeader("Pragma", "no-cache")
                 .addHeader("Cache-Control", "no-cache")
                 .addHeader("client-locale", "de-DE")
@@ -119,17 +131,19 @@ public class RESTService {
         String responseHeader;
         String requestVerificationToken = null;
 
+        ArrayList<String> cookieNames = new ArrayList<>();
+        cookieNames.add("ARRAffinity");
+        cookieNames.add("ARRAffinitySameSite");
+        cookieNames.add("CCLI_AUTH");
+        cookieNames.add("CCLI_JWT_AUTH");
+        cookieNames.add(".AspNetCore.Session");
+
         Request request = new Request.Builder()
                 .url("https://reporting.ccli.com/api/antiForgery")
                 .addHeader("Accept", "application/json, text/plain, */*")
                 .addHeader("Connection", "keep-alive")
                 .addHeader("Content-Type", "application/json")
-                .addHeader("Cookie",
-                        "ARRAffinity=" + cookies.get("ARRAffinity") + "; " +
-                        "ARRAffinitySameSite=" + cookies.get("ARRAffinitySameSite") + "; " +
-                        "CCLI_AUTH=" + cookies.get("CCLI_AUTH") + "; " +
-                        "CCLI_JWT_AUTH=" + cookies.get("CCLI_JWT_AUTH") + "; " +
-                        ".AspNetCore.Session=" + cookies.get(".AspNetCore.Session"))
+                .addHeader("Cookie", buildCookieString(cookieNames))
                 .addHeader("Host", "reporting.ccli.com")
                 .addHeader("Origin", "https://reporting.ccli.com")
                 .addHeader("Pragma", "no-cache")
@@ -170,13 +184,13 @@ public class RESTService {
         }
     }
 
-    private String buildCookieString(ArrayList<String> cookieNames, HashMap<String, String> cookies) {
+    private String buildCookieString(ArrayList<String> cookieNames) {
         StringBuilder cookieStringBuilder = new StringBuilder();
         for (String cookieName : cookieNames) {
             if (!cookieNames.get(0).equals(cookieName)) {
                 cookieStringBuilder.append("; ");
             }
-            cookieStringBuilder.append(cookieName).append("=").append(cookies.get(cookieName));
+            cookieStringBuilder.append(cookieName).append("=").append(this.cookies.get(cookieName));
         }
 
         return cookieStringBuilder.toString();

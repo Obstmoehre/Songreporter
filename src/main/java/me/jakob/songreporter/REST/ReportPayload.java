@@ -1,20 +1,18 @@
 package me.jakob.songreporter.REST;
 
-import me.jakob.songreporter.reporting.objects.Song;
-
-import java.util.Date;
+import java.util.ArrayList;
 
 public class ReportPayload {
     String id;
     String date;
-    Songdetails[] songs;
+    ArrayList<Songdetails> songs;
     RecordedBy recordedBy;
     Categories lyrics;
     String[] sheetMusic;
     String[] rehearsals;
     String[] cslps;
 
-    public ReportPayload(Songdetails[] songs) {
+    public ReportPayload(ArrayList<Songdetails> songs) {
         this.songs = songs;
         this. id = "";
         this. date = "";

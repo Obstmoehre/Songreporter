@@ -9,38 +9,42 @@ import java.util.ArrayList;
 
 public class CCLIReader {
 
-    public ArrayList<Song> read(String songsDirectory, File script) {
-        ArrayList<Song> songList = new ArrayList<>();
+    public ArrayList<String> read(String songsDirectory, File script) {
+        ArrayList<String> ccliSongNumbers = new ArrayList<>();
 
         // read script and extract songs
         try {
+            ArrayList<String> songNameList = new ArrayList<>();
+
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
-            StringBuilder songName = new StringBuilder();
+            StringBuilder songNameBuilder = new StringBuilder();
             while (bufferedReader.ready()) {
                 String scriptLine = bufferedReader.readLine().trim();
                 scriptLine = replaceSpecialCharacters(scriptLine);
                 if (scriptLine.contains("FileName") && (scriptLine.contains("+") || scriptLine.endsWith(".sng"))) {
-                    songName = new StringBuilder(scriptLine.substring(scriptLine.indexOf("=")+2));
+                    songNameBuilder = new StringBuilder(scriptLine.substring(scriptLine.indexOf("=")+2));
                 } else if (scriptLine.contains("FileName")) {
-                    songName = new StringBuilder();
-                } else if (scriptLine.contains("+") && !(songName.toString().endsWith(".sng"))) {
-                    songName.append(scriptLine, 0, scriptLine.length()-2);
-                } else if (scriptLine.contains("end") && songName.toString().endsWith(".sng")) {
-                    songList.add(new Song(songName.substring(0, songName.length()-4)));
-                    songName = new StringBuilder();
+                    songNameBuilder = new StringBuilder();
+                } else if (scriptLine.contains("+") && !(songNameBuilder.toString().endsWith(".sng"))) {
+                    songNameBuilder.append(scriptLine, 0, scriptLine.length()-2);
+                } else if (scriptLine.contains("end") && songNameBuilder.toString().endsWith(".sng")) {
+                    songNameList.add(songNameBuilder.toString());
+                    songNameBuilder = new StringBuilder();
                 } else if (scriptLine.endsWith("g")) {
-                    songName.append(scriptLine);
+                    songNameBuilder.append(scriptLine);
                 }
             }
 
             // going through the song files and reading the ccli songnumbers out of them
-            for (Song song : songList) {
+            for (String songName : songNameList) {
                 try {
-                    bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(songsDirectory + song.getName() + ".sng"), StandardCharsets.UTF_8));
+                    bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(
+                            songsDirectory + songName), StandardCharsets.UTF_8)
+                    );
                     while (bufferedReader.ready()) {
                         String songLine = bufferedReader.readLine().trim();
                         if (songLine.contains("CCLI")) {
-                            song.setCcliNumber(songLine.substring(songLine.indexOf("=") + 1));
+                            ccliSongNumbers.add(songLine.substring(songLine.indexOf("=") + 1));
                             break;
                         }
                     }
@@ -52,7 +56,7 @@ public class CCLIReader {
             e.printStackTrace();
         }
 
-        return songList;
+        return ccliSongNumbers;
     }
 
     private String replaceSpecialCharacters(String oldString) {

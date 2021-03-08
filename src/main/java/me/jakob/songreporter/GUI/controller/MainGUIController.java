@@ -9,7 +9,7 @@ import me.jakob.songreporter.GUI.elements.FileSelector;
 import me.jakob.songreporter.config.ConfigLoader;
 import me.jakob.songreporter.config.ConfigManager;
 import me.jakob.songreporter.reporting.CCLIReader;
-import me.jakob.songreporter.reporting.Reporter;
+//import me.jakob.songreporter.reporting.Reporter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 public class MainGUIController implements Initializable {
 
     private final ConfigManager configManager = new ConfigLoader().load();
-    private final Reporter reporter = new Reporter();
+//    private final Reporter reporter = new Reporter();
     private final CCLIReader ccliReader = new CCLIReader();
     private CheckBox[] categoryBoxes;
     private File script;
@@ -50,12 +50,12 @@ public class MainGUIController implements Initializable {
             }
             this.configManager.saveConfig();
 
-            try {
-                reporter.report(eMail, password, this.configManager.getBrowser(), this.script, this.configManager.getCategories(),
-                        ccliReader.read(this.configManager.getSongsDirectory(), this.script));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                reporter.report(eMail, password, this.configManager.getBrowser(), this.script, this.configManager.getCategories(),
+//                        ccliReader.read(this.configManager.getSongsDirectory(), this.script));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
             if (checkScript(script)) {
                 scriptLabel.setStyle("-fx-text-fill: #58a832");

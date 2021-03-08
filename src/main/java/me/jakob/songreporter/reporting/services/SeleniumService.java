@@ -1,10 +1,11 @@
 package me.jakob.songreporter.reporting.services;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import me.jakob.songreporter.GUI.elements.ErrorGUI;
 import me.jakob.songreporter.reporting.enums.WebsiteElement;
-import me.jakob.songreporter.reporting.exceptions.*;
-import me.jakob.songreporter.reporting.exceptions.TimeoutException;
+import me.jakob.songreporter.reporting.exceptions.CCLILoginException;
+import me.jakob.songreporter.reporting.exceptions.ServiceNotInitializedException;
+import me.jakob.songreporter.reporting.exceptions.WebsiteChangedException;
+import me.jakob.songreporter.reporting.exceptions.WrongCredentialsException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -12,13 +13,7 @@ import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.function.Function;
 
 public class SeleniumService {
     private WebDriver driver;
@@ -41,6 +36,10 @@ public class SeleniumService {
     public void init(String browser) {
         this.browser = browser;
         this.initiated = true;
+    }
+
+    public HashMap<String, String> getCookies() {
+        return cookies;
     }
 
     public boolean login(String eMail, String password) throws CCLILoginException, InterruptedException, ServiceNotInitializedException {
@@ -68,23 +67,21 @@ public class SeleniumService {
 
         while (retries < maxRetries) {
             this.driver.get("https://olr.ccli.com");
-            waitForPageLoad();
 
-            // waiting for login page
-            //boolean loaded = false;
-            //int triesBeforeTimeout = 0;
-            //while (!loaded) {
-            //    try {
-            //        driver.findElement(By.id("EmailAddress"));
-            //        loaded = true;
-            //    } catch (NoSuchElementException e) {
-            //        triesBeforeTimeout++;
-            //        if (triesBeforeTimeout >= 30) {
-            //            throw new TimeoutException();
-            //        }
-            //        Thread.sleep(300);
-            //    }
-            //}
+            boolean loaded = false;
+            int triesBeforeTimeout = 0;
+            while (!loaded) {
+                try {
+                    driver.findElement(By.id("EmailAddress"));
+                    loaded = true;
+                } catch (NoSuchElementException e) {
+                    triesBeforeTimeout++;
+                    if (triesBeforeTimeout >= 30) {
+                        throw new TimeoutException();
+                    }
+                    Thread.sleep(300);
+                }
+            }
 
             // login to online reporting
             try {
@@ -115,16 +112,12 @@ public class SeleniumService {
             }
         }
 
-        waitForPageLoad();
-        if (checkLogin()) {
-            this.cookies = new HashMap<>();
-            for (Cookie cookie : this.driver.manage().getCookies()) {
-                this.cookies.put(cookie.getName(), cookie.getValue());
-            }
-            return true;
-        } else {
-            throw new WrongCredentialsException();
+        initialWaitForLoadingScreen();
+        this.cookies = new HashMap<>();
+        for (Cookie cookie : this.driver.manage().getCookies()) {
+            this.cookies.put(cookie.getName(), cookie.getValue());
         }
+        return true;
     }
 
     private boolean checkLogin() {
@@ -145,5 +138,41 @@ public class SeleniumService {
                     .valueOf(((JavascriptExecutor) driver).executeScript("return document.readyState"))
                     .equals("complete");
         });
+    }
+
+    private void initialWaitForLoadingScreen() throws WrongCredentialsException, WebsiteChangedException {
+        int tries = 0;
+        int maxTries = 300;
+
+        while (tries < maxTries) {
+            try {
+                driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"));
+                tries = maxTries;
+            } catch (NoSuchElementException e) {
+                tries++;
+                if (tries >= maxTries) {
+                    if (driver.getCurrentUrl().contains("reporting.ccli.com")) {
+                        throw new WebsiteChangedException(WebsiteElement.LOADING_SCREEN);
+                    } else {
+                        throw new WrongCredentialsException();
+                    }
+                } else if (!checkLogin()) {
+                    throw new WrongCredentialsException();
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException interruptedException) {
+                }
+            }
+        }
+
+        try {
+            while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"))
+                    .getAttribute("aria-busy").equals("true")) {
+                //noinspection BusyWait
+                Thread.sleep(50);
+            }
+        } catch (NoSuchElementException | InterruptedException e) {
+        }
     }
 }
