@@ -3,29 +3,43 @@ package me.jakob.songreporter.reporting.objects;
 import me.jakob.songreporter.reporting.enums.Reason;
 
 public class Song {
-    private String name;
-    private String ccliNumber;
-    private boolean reported;
-    private Reason reason;
+    private String id;
+    private String title;
+    private String ccliSongNo;
+    private boolean publicDomain;
+    private transient boolean reported;
+    private transient Reason reason;
 
-    public Song(String name) {
-        this.name = name;
+    public String getId() {
+        return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getTitle() {
+        return title;
     }
 
-    public String getCcliNumber() {
-        return ccliNumber;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setCcliNumber(String ccliNumber) {
-        this.ccliNumber = ccliNumber;
+    public String getCcliSongNo() {
+        return ccliSongNo;
+    }
+
+    public void setCcliSongNo(String ccliSongNo) {
+        this.ccliSongNo = ccliSongNo;
+    }
+
+    public boolean isPublicDomain() {
+        return publicDomain;
+    }
+
+    public void setPublicDomain(boolean publicDomain) {
+        this.publicDomain = publicDomain;
     }
 
     public boolean isReported() {
@@ -49,4 +63,3 @@ public class Song {
         this.reason = reason;
     }
 }
-

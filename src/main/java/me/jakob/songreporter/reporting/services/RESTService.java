@@ -5,7 +5,7 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.jakob.songreporter.REST.ReportPayload;
-import me.jakob.songreporter.REST.Songdetails;
+import me.jakob.songreporter.reporting.objects.Song;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class RESTService {
         this.cookies = cookies;
     }
 
-    public Songdetails fetchSongdetails(String ccliSongNumber) {
+    public Song fetchSongdetails(String ccliSongNumber) {
         String json;
 
         ArrayList<String> cookieNames = new ArrayList<>();
@@ -68,10 +68,10 @@ public class RESTService {
             return null;
         }
 
-        return this.gson.fromJson(json, Songdetails.class);
+        return this.gson.fromJson(json, Song.class);
     }
 
-    public ArrayList<Integer> reportSongs(ArrayList<Songdetails> songs) {
+    public ArrayList<Integer> reportSongs(ArrayList<Song> songs) {
         String requestVerificationToken = getRequestVerificationToken(cookies);
         ArrayList<Integer> responseCodes = new ArrayList<>();
 
@@ -83,8 +83,8 @@ public class RESTService {
         cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
         cookieNames.add(".AspNetCore.Session");
 
-        for (Songdetails songdetails : songs) {
-            String reportPayload = this.gson.toJson(new ReportPayload(songdetails));
+        for (Song song : songs) {
+            String reportPayload = this.gson.toJson(new ReportPayload(song));
             Request request = new Request.Builder()
                     .url("https://reporting.ccli.com/api/report")
                     .addHeader("Accept", "application/json, text/plain, */*")

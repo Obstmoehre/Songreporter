@@ -1,19 +1,19 @@
 package me.jakob.songreporter.REST;
 
-import java.util.ArrayList;
+import me.jakob.songreporter.reporting.objects.Song;
 
 public class ReportPayload {
     String id;
     String date;
-    Songdetails[] songs;
+    Song[] songs;
     RecordedBy recordedBy;
     Categories lyrics;
     String[] sheetMusic;
     String[] rehearsals;
     String[] cslps;
 
-    public ReportPayload(Songdetails song) {
-        this.songs = new Songdetails[]{song};
+    public ReportPayload(Song song) {
+        this.songs = new Song[]{song};
         this. id = "";
         this. date = "";
         this.recordedBy = new RecordedBy();

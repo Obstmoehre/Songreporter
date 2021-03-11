@@ -8,7 +8,7 @@ import me.jakob.songreporter.GUI.elements.DirectorySelector;
 import me.jakob.songreporter.GUI.elements.FileSelector;
 import me.jakob.songreporter.config.ConfigLoader;
 import me.jakob.songreporter.config.ConfigManager;
-import me.jakob.songreporter.reporting.CCLIReader;
+import me.jakob.songreporter.reporting.services.CCLIReadingService;
 //import me.jakob.songreporter.reporting.Reporter;
 
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ public class MainGUIController implements Initializable {
 
     private final ConfigManager configManager = new ConfigLoader().load();
 //    private final Reporter reporter = new Reporter();
-    private final CCLIReader ccliReader = new CCLIReader();
+    private final CCLIReadingService ccliReadingService = new CCLIReadingService();
     private CheckBox[] categoryBoxes;
     private File script;
 

@@ -1,15 +1,14 @@
-package me.jakob.songreporter.reporting;
+package me.jakob.songreporter.reporting.services;
 
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
-import me.jakob.songreporter.reporting.objects.Song;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class CCLIReader {
+public class CCLIReadingService {
 
-    public ArrayList<String> read(String songsDirectory, File script) {
+    public ArrayList<String> readCcliSongnumbers(String songsDirectory, File script) {
         ArrayList<String> ccliSongNumbers = new ArrayList<>();
 
         // read script and extract songs
