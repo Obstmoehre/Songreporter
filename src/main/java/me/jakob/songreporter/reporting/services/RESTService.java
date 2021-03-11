@@ -71,17 +71,9 @@ public class RESTService {
         return this.gson.fromJson(json, Songdetails.class);
     }
 
-    public int reportSongs(ArrayList<Songdetails> songs) {
+    public ArrayList<Integer> reportSongs(ArrayList<Songdetails> songs) {
         String requestVerificationToken = getRequestVerificationToken(cookies);
-        String reportPayload = this.gson.toJson(new ReportPayload(songs));
-
-        HttpUrl url = new HttpUrl.Builder()
-                .scheme("https")
-                .host("reporting.ccli.com")
-                .port(443)
-                .addPathSegment("api")
-                .addPathSegment("report")
-                .build();
+        ArrayList<Integer> responseCodes = new ArrayList<>();
 
         ArrayList<String> cookieNames = new ArrayList<>();
         cookieNames.add("ARRAffinity");
@@ -91,37 +83,42 @@ public class RESTService {
         cookieNames.add(".AspNetCore.Antiforgery.w5W7x28NAIs");
         cookieNames.add(".AspNetCore.Session");
 
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Accept", "application/json, text/plain, */*")
-                .addHeader("Connection", "keep-alive")
-                .addHeader("Content-Type", "application/json;charset=utf-8")
-                .addHeader("Cookie", buildCookieString(cookieNames))
-                .addHeader("Host", "reporting.ccli.com")
-                .addHeader("Origin", "https://reporting.ccli.com")
-                .addHeader("Pragma", "no-cache")
-                .addHeader("Cache-Control", "no-cache")
-                .addHeader("client-locale", "de-DE")
-                .addHeader("Sec-Fetch-Site", "same-origin")
-                .addHeader("Sec-Fetch-Mode", "cors")
-                .addHeader("Sec-Fetch-Dest", "empty")
-                .addHeader("dnt", "1")
-                .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
-                .addHeader("RequestVerificationToken", requestVerificationToken) //verification token still missing here
-                .post(RequestBody.create(MediaType.parse("application/json"), reportPayload))
-                .build();
+        for (Songdetails songdetails : songs) {
+            String reportPayload = this.gson.toJson(new ReportPayload(songdetails));
+            Request request = new Request.Builder()
+                    .url("https://reporting.ccli.com/api/report")
+                    .addHeader("Accept", "application/json, text/plain, */*")
+                    .addHeader("Connection", "keep-alive")
+                    .addHeader("Content-Type", "application/json;charset=utf-8")
+                    .addHeader("Cookie", buildCookieString(cookieNames))
+                    .addHeader("Host", "reporting.ccli.com")
+                    .addHeader("Origin", "https://reporting.ccli.com")
+                    .addHeader("Pragma", "no-cache")
+                    .addHeader("Cache-Control", "no-cache")
+                    .addHeader("client-locale", "de-DE")
+                    .addHeader("Sec-Fetch-Site", "same-origin")
+                    .addHeader("Sec-Fetch-Mode", "cors")
+                    .addHeader("Sec-Fetch-Dest", "empty")
+                    .addHeader("dnt", "1")
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
+                    .addHeader("RequestVerificationToken", requestVerificationToken) //verification token still missing here
+                    .post(RequestBody.create(MediaType.parse("application/json"), reportPayload))
+                    .build();
 
-        try (Response response = this.client.newCall(request).execute()) {
-            if (response.body() != null) {
-                putCookies(response.headers("Set-Cookie"));
-                return response.code();
-            } else {
-                return -1;
+            try (Response response = this.client.newCall(request).execute()) {
+                if (response.body() != null) {
+                    putCookies(response.headers("Set-Cookie"));
+                    responseCodes.add(response.code());
+                } else {
+                    responseCodes.add(-1);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                responseCodes.add(-1);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
         }
+
+        return responseCodes;
     }
 
     private String getRequestVerificationToken(HashMap<String, String> cookies) {
