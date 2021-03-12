@@ -11,6 +11,7 @@ import me.jakob.songreporter.reporting.enums.WebsiteElement;
 import me.jakob.songreporter.reporting.exceptions.*;
 import me.jakob.songreporter.reporting.exceptions.TimeoutException;
 import me.jakob.songreporter.reporting.objects.Song;
+import me.jakob.songreporter.reporting.services.CCLIReadingService;
 import me.jakob.songreporter.reporting.services.RESTService;
 import me.jakob.songreporter.reporting.services.SeleniumService;
 import org.openqa.selenium.*;
@@ -28,25 +29,26 @@ public class Reporter {
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
     private boolean websiteChangeFlag;
-    private RESTService restService;
+    CCLIReadingService ccliReadingService;
     private final SeleniumService seleniumService;
+    private RESTService restService;
     private final boolean testMode;
 
     public Reporter(boolean testMode) {
         this.testMode = testMode;
         this.seleniumService = SeleniumService.getInstance();
+        this.ccliReadingService = new CCLIReadingService();
     }
 
-    public void report(String eMail, String password, String browser, File script, boolean[] categories) throws IOException {
+    public void report(String eMail, String password, String browser, File script, 
+                       boolean[] categories, ArrayList<String> ccliSongNumbers) throws IOException {
         errorWriter = new FileWriter(errorLog, true);
         this.script = script;
         seleniumService.init(browser);
-
         boolean loginSuccess;
 
         try {
-            seleniumService.login(eMail, password);
-            loginSuccess = true;
+            loginSuccess = seleniumService.login(eMail, password);
         } catch (CCLILoginException e) {
             loginSuccess = false;
             switch (e.getClass()) {
@@ -80,11 +82,11 @@ public class Reporter {
         }
 
         if (loginSuccess) {
+            this.restService = new RESTService(seleniumService.getCookies());
 
             // reporting the songs out of the list of CCLI songnumbers
             for (Song song : songList) {
                 song.markReported();
-                waitForLoadingScreen();
             }
             errorWriter.close();
             driver.quit();
@@ -149,40 +151,6 @@ public class Reporter {
         }
     }
 
-    private boolean setCategory(int category) throws CategoryNotReportableException {
-        try {
-            switch (category) {
-                case 0: {
-                    // increasing print count by 1
-                    Select printCount = new Select(driver.findElement(By.id("cclPrint")));
-                    printCount.selectByVisibleText("1");
-                    return true;
-                }
-                case 1: {
-                    // increasing digital count by 1
-                    Select digitalCount = new Select(driver.findElement(By.id("cclDigital")));
-                    digitalCount.selectByVisibleText("1");
-                    return true;
-                }
-                case 2: {
-                    // increasing stream count by 1
-                    Select streamCount = new Select(driver.findElement(By.id("cclRecord")));
-                    streamCount.selectByVisibleText("1");
-                    return true;
-                }
-                case 3: {
-                    // increasing translation count by 1
-                    Select translationCount = new Select(driver.findElement(By.id("cclTranslate")));
-                    translationCount.selectByVisibleText("1");
-                    return true;
-                }
-            }
-        } catch (NoSuchElementException e) {
-            throw new CategoryNotReportableException(category);
-        }
-        return false;
-    }
-
     private void waitForLoadingScreen() {
         int tries = 0;
         int maxTries = 300;
@@ -195,47 +163,6 @@ public class Reporter {
                 tries++;
                 if (tries >= maxTries) {
                     error(e, "timeout while waiting for loading screen");
-                }
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException interruptedException) {
-                    error(interruptedException, "sleep command failed");
-                }
-            }
-        }
-
-        try {
-            while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"))
-                    .getAttribute("aria-busy").equals("true")) {
-                //noinspection BusyWait
-                Thread.sleep(50);
-            }
-        } catch (NoSuchElementException e) {
-            error(e, "loading screen not found");
-        } catch (InterruptedException e) {
-            error(e, "sleep command failed");
-        }
-    }
-
-    private void initialWaitForLoadingScreen() throws WrongCredentialsException, WebsiteChangedException {
-        int tries = 0;
-        int maxTries = 300;
-
-        while (tries < maxTries) {
-            try {
-                driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"));
-                tries = maxTries;
-            } catch (NoSuchElementException e) {
-                tries++;
-                if (tries >= maxTries) {
-                    if (driver.getCurrentUrl().contains("reporting.ccli.com")) {
-                        websiteChangeFlag = false;
-                        throw new WebsiteChangedException(WebsiteElement.LOADING_SCREEN);
-                    } else {
-                        throw new WrongCredentialsException();
-                    }
-                } else if (!checkLogin()) {
-                    throw new WrongCredentialsException();
                 }
                 try {
                     Thread.sleep(10);
