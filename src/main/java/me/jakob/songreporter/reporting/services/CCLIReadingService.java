@@ -1,6 +1,7 @@
 package me.jakob.songreporter.reporting.services;
 
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
+import me.jakob.songreporter.reporting.objects.Song;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -8,13 +9,11 @@ import java.util.ArrayList;
 
 public class CCLIReadingService {
 
-    public ArrayList<String> readCcliSongnumbers(String songsDirectory, File script) {
-        ArrayList<String> ccliSongNumbers = new ArrayList<>();
+    public ArrayList<Song> readCcliSongnumbers(String songsDirectory, File script) {
+        ArrayList<Song> songs = new ArrayList<>();
 
         // read script and extract songs
         try {
-            ArrayList<String> songNameList = new ArrayList<>();
-
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(script.getPath()), StandardCharsets.UTF_8));
             StringBuilder songNameBuilder = new StringBuilder();
             while (bufferedReader.ready()) {
@@ -27,7 +26,8 @@ public class CCLIReadingService {
                 } else if (scriptLine.contains("+") && !(songNameBuilder.toString().endsWith(".sng"))) {
                     songNameBuilder.append(scriptLine, 0, scriptLine.length()-2);
                 } else if (scriptLine.contains("end") && songNameBuilder.toString().endsWith(".sng")) {
-                    songNameList.add(songNameBuilder.toString());
+                    String songName = songNameBuilder.toString();
+                    songs.add(new Song(songName.substring(0, songName.length()-4)));
                     songNameBuilder = new StringBuilder();
                 } else if (scriptLine.endsWith("g")) {
                     songNameBuilder.append(scriptLine);
@@ -35,15 +35,15 @@ public class CCLIReadingService {
             }
 
             // going through the song files and reading the ccli songnumbers out of them
-            for (String songName : songNameList) {
+            for (Song song : songs) {
                 try {
                     bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(
-                            songsDirectory + songName), StandardCharsets.UTF_8)
+                            songsDirectory + song.getTitle() + ".sng"), StandardCharsets.UTF_8)
                     );
                     while (bufferedReader.ready()) {
                         String songLine = bufferedReader.readLine().trim();
                         if (songLine.contains("CCLI")) {
-                            ccliSongNumbers.add(songLine.substring(songLine.indexOf("=") + 1));
+                            song.setCcliSongNo(songLine.substring(songLine.indexOf("=") + 1));
                             break;
                         }
                     }
@@ -55,7 +55,7 @@ public class CCLIReadingService {
             e.printStackTrace();
         }
 
-        return ccliSongNumbers;
+        return songs;
     }
 
     private String replaceSpecialCharacters(String oldString) {

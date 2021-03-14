@@ -8,6 +8,11 @@ public class Song {
     private String ccliSongNo;
     private boolean publicDomain;
     private transient boolean reported;
+
+    public Song(String title) {
+        this.title = title;
+    }
+
     private transient Reason reason;
 
     public String getId() {

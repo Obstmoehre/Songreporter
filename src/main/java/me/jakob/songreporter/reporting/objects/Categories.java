@@ -1,4 +1,4 @@
-package me.jakob.songreporter.REST;
+package me.jakob.songreporter.reporting.objects;
 
 public class Categories {
     int print;

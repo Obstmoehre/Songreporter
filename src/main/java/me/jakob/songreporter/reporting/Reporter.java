@@ -7,21 +7,22 @@ import javafx.stage.Stage;
 import me.jakob.songreporter.GUI.controller.SummaryGUIController;
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
 import me.jakob.songreporter.reporting.enums.Reason;
-import me.jakob.songreporter.reporting.enums.WebsiteElement;
 import me.jakob.songreporter.reporting.exceptions.*;
-import me.jakob.songreporter.reporting.exceptions.TimeoutException;
 import me.jakob.songreporter.reporting.objects.Song;
 import me.jakob.songreporter.reporting.services.CCLIReadingService;
 import me.jakob.songreporter.reporting.services.RESTService;
 import me.jakob.songreporter.reporting.services.SeleniumService;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriver;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Reporter {
     private File script;
@@ -29,7 +30,7 @@ public class Reporter {
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
     private boolean websiteChangeFlag;
-    CCLIReadingService ccliReadingService;
+    private final CCLIReadingService ccliReadingService;
     private final SeleniumService seleniumService;
     private RESTService restService;
     private final boolean testMode;
@@ -42,6 +43,7 @@ public class Reporter {
 
     public void report(String eMail, String password, String browser, File script, 
                        boolean[] categories, ArrayList<String> ccliSongNumbers) throws IOException {
+        ArrayList<Song> songs = new ArrayList<>();
         errorWriter = new FileWriter(errorLog, true);
         this.script = script;
         seleniumService.init(browser);
@@ -50,28 +52,27 @@ public class Reporter {
         try {
             loginSuccess = seleniumService.login(eMail, password);
         } catch (CCLILoginException e) {
+            for (String ccliSongnumber : ccliSongNumbers) {
+                songs.add(new Song(ccliSongnumber));
+            }
             loginSuccess = false;
-            switch (e.getClass()) {
-                case WrongCredentialsException.class:
-                    for (Song song : songList) {
-                        song.markUnreported(Reason.INVALID_CREDENTIALS);
-                    }
-                    error(e, "Invalid Credentials");
-                    break;
-                case WebsiteChangedException.class:
-                    for (Song song : songList) {
-                        song.markUnreported(Reason.SITE_CODE_CHANGED);
-                    }
-                    error(e, "Most probably the code of the Website has changed.");
-                    break;
-                case TimeoutException.class:
-                    for (Song song : songList) {
-                        song.markUnreported(Reason.LOGIN_TIMEOUT);
-                    }
-                    error(e, "Timed out while waiting for a page. Please check your");
-                    break;
-                default:
-                    error(e, "Unknown Error occurred");
+            if (WrongCredentialsException.class.equals(e.getClass())) {
+                for (Song song : songs) {
+                    song.markUnreported(Reason.INVALID_CREDENTIALS);
+                }
+                error(e, "Invalid Credentials");
+            } else if (WebsiteChangedException.class.equals(e.getClass())) {
+                for (Song song : songs) {
+                    song.markUnreported(Reason.SITE_CODE_CHANGED);
+                }
+                error(e, "Most probably the code of the Website has changed.");
+            } else if (TimeoutException.class.equals(e.getClass())) {
+                for (Song song : songs) {
+                    song.markUnreported(Reason.LOGIN_TIMEOUT);
+                }
+                error(e, "Timed out while waiting for a page. Please check your");
+            } else {
+                error(e, "Unknown Error occurred");
             }
         } catch (ServiceNotInitializedException e) {
             error(e, "Selenium Service not initialized");
@@ -83,10 +84,37 @@ public class Reporter {
 
         if (loginSuccess) {
             this.restService = new RESTService(seleniumService.getCookies());
+            for (String ccliSongNumber : ccliSongNumbers) {
+                Song song = restService.fetchSongdetails(ccliSongNumber);
+                if (song.isPublicDomain()) {
+                    song.markUnreported(Reason.SONG_NOT_LICENSED);
+                } else {
+                    song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
+                }
+                songs.add(song);
+            }
+
+            HashMap<Song, Integer> responseCodes = restService.reportSongs(songs);
 
             // reporting the songs out of the list of CCLI songnumbers
-            for (Song song : songList) {
-                song.markReported();
+            for (Song song : songs) {
+                switch (responseCodes.get(song)) {
+                    case 200:
+                        song.markReported();
+                        break;
+                    case -1:
+                        song.markUnreported(Reason.FAILED_REQUEST);
+                        break;
+                    case -2:
+                        song.markUnreported(Reason.NO_RESPONSE_BODY);
+                        break;
+                    case -3:
+                        song.markUnreported(Reason.NO_REQUEST_VERIFICATION_TOKEN);
+                        break;
+                    default:
+                        song.markUnreported(Reason.ERRORCODE);
+                        break;
+                }
             }
             errorWriter.close();
             driver.quit();
@@ -98,7 +126,7 @@ public class Reporter {
             }
         }
 
-        summarise(songList, websiteChangeFlag);
+        summarise(songs, websiteChangeFlag);
     }
 
     private void markAsReported() throws IOException {

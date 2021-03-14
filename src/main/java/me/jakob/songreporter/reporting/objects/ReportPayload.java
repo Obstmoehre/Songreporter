@@ -1,6 +1,4 @@
-package me.jakob.songreporter.REST;
-
-import me.jakob.songreporter.reporting.objects.Song;
+package me.jakob.songreporter.reporting.objects;
 
 public class ReportPayload {
     String id;
