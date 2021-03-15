@@ -33,11 +33,16 @@ public class Reporter {
         this.seleniumService = SeleniumService.getInstance();
     }
 
-    public void report(Config config, File script) throws IOException {
+    public void report(Config config, File script) {
+        try {
+            errorWriter = new FileWriter(errorLog, true);
+        } catch (IOException e) {
+            new ErrorGUI().showNewErrorMessage("Failed to open File writer" +
+                    "\n" + e.getMessage());
+        }
         seleniumService.init(config.getBrowser());
 
         ArrayList<Song> songs = ccliReadingService.readCcliSongnumbers(config.getSongsDirectory(), script);
-        errorWriter = new FileWriter(errorLog, true);
         this.script = script;
         boolean loginSuccess;
 
@@ -109,7 +114,12 @@ public class Reporter {
                         break;
                 }
             }
-            errorWriter.close();
+            try {
+                errorWriter.close();
+            } catch (IOException e) {
+                new ErrorGUI().showNewErrorMessage("Failed to open File writer" +
+                        "\n" + e.getMessage());
+            }
 
             try {
                 markAsReported();
