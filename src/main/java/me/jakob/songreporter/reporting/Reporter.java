@@ -6,16 +6,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import me.jakob.songreporter.GUI.controller.SummaryGUIController;
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
+import me.jakob.songreporter.config.Config;
 import me.jakob.songreporter.reporting.enums.Reason;
 import me.jakob.songreporter.reporting.exceptions.*;
 import me.jakob.songreporter.reporting.objects.Song;
 import me.jakob.songreporter.reporting.services.CCLIReadingService;
 import me.jakob.songreporter.reporting.services.RESTService;
 import me.jakob.songreporter.reporting.services.SeleniumService;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,33 +23,27 @@ import java.util.HashMap;
 
 public class Reporter {
     private File script;
-    private WebDriver driver;
     private final File errorLog = new File(System.getProperty("user.home") + "/Songreporter/error.log");
     private FileWriter errorWriter;
-    private boolean websiteChangeFlag;
     private final CCLIReadingService ccliReadingService;
     private final SeleniumService seleniumService;
-    private RESTService restService;
 
     public Reporter() {
-        this.seleniumService = SeleniumService.getInstance();
         this.ccliReadingService = new CCLIReadingService();
+        this.seleniumService = SeleniumService.getInstance();
     }
 
-    public void report(String eMail, String password, String browser, File script, 
-                       boolean[] categories, ArrayList<String> ccliSongNumbers) throws IOException {
-        ArrayList<Song> songs = new ArrayList<>();
+    public void report(Config config, File script) throws IOException {
+        seleniumService.init(config.getBrowser());
+
+        ArrayList<Song> songs = ccliReadingService.readCcliSongnumbers(config.getSongsDirectory(), script);
         errorWriter = new FileWriter(errorLog, true);
         this.script = script;
-        seleniumService.init(browser);
         boolean loginSuccess;
 
         try {
-            loginSuccess = seleniumService.login(eMail, password);
+            loginSuccess = seleniumService.login(config.getEMail(), config.getPassword());
         } catch (CCLILoginException e) {
-            for (String ccliSongnumber : ccliSongNumbers) {
-                songs.add(new Song(ccliSongnumber));
-            }
             loginSuccess = false;
             if (WrongCredentialsException.class.equals(e.getClass())) {
                 for (Song song : songs) {
@@ -73,7 +64,7 @@ public class Reporter {
                 error(e, "Unknown Error occurred");
             }
         } catch (ServiceNotInitializedException e) {
-            error(e, "Selenium Service not initialized");
+            seleniumService.init(config.getBrowser());
             loginSuccess = false;
         } catch (InterruptedException e) {
             error(e, "Error while waiting");
@@ -81,15 +72,19 @@ public class Reporter {
         }
 
         if (loginSuccess) {
-            this.restService = new RESTService(seleniumService.getCookies());
-            for (String ccliSongNumber : ccliSongNumbers) {
-                Song song = restService.fetchSongdetails(ccliSongNumber);
+            RESTService restService = new RESTService(seleniumService.getCookies());
+            for (int i = 0; i < songs.size(); i++) {
+                Song song = songs.get(i);
+                if (song.getCcliSongNo() == null) {
+                    song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
+                } else {
+                    song = restService.fetchSongdetails(song.getCcliSongNo());
+                }
+
                 if (song.isPublicDomain()) {
                     song.markUnreported(Reason.SONG_NOT_LICENSED);
-                } else {
-                    song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                 }
-                songs.add(song);
+                songs.set(i, song);
             }
 
             HashMap<Song, Integer> responseCodes = restService.reportSongs(songs);
@@ -115,7 +110,6 @@ public class Reporter {
                 }
             }
             errorWriter.close();
-            driver.quit();
 
             try {
                 markAsReported();
@@ -124,7 +118,7 @@ public class Reporter {
             }
         }
 
-        summarise(songs, websiteChangeFlag);
+        summarise(songs);
     }
 
     private void markAsReported() throws IOException {
@@ -155,7 +149,7 @@ public class Reporter {
         }
     }
 
-    private void summarise(ArrayList<Song> songList, boolean websiteChangeFlag) {
+    private void summarise(ArrayList<Song> songList) {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/summaryGUI.fxml"));
         Parent root = null;
         try {
@@ -171,7 +165,7 @@ public class Reporter {
             summaryStage.setResizable(false);
 
             SummaryGUIController summaryGUIController = fxmlLoader.getController();
-            summaryGUIController.summarise(songList, websiteChangeFlag);
+            summaryGUIController.summarise(songList);
 
             summaryStage.show();
         }

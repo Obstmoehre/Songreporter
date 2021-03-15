@@ -108,40 +108,28 @@ public class ConfigManager {
         }
     }
 
-    public String getBrowser() {
-        return this.config.getBrowser();
+    public Config getConfig() {
+        return this.config;
     }
 
     public void setBrowser(String browser) {
         this.config.setBrowser(browser);
     }
 
-    public String getSongsDirectory() {
-        return this.config.getSongsDirectory();
-    }
-
     public void setSongsDirectory(String songsDirectory) {
         this.config.setSongsDirectory(songsDirectory);
-    }
-
-    public String getEMail() {
-        return this.config.getEMail();
     }
 
     public void setEMail(String eMail) {
         this.config.setEMail(eMail);
     }
 
-    public String getScriptsDirectory() {
-        return this.config.getScriptsDirectory();
+    public void setPassword(String password) {
+        this.config.setPassword(password);
     }
 
     public void setScriptsDirectory(String scriptsDirectory) {
         this.config.setScriptsDirectory(scriptsDirectory);
-    }
-
-    public boolean[] getCategories() {
-        return this.config.getCategories();
     }
 
     public void setCategories(boolean[] categories) {

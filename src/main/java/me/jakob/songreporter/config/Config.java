@@ -1,6 +1,6 @@
 package me.jakob.songreporter.config;
 
-class Config {
+public class Config {
     private String browser;
     private String songsDirectory;
     private String scriptsDirectory;
@@ -8,7 +8,7 @@ class Config {
     private String password;
     private boolean[] categories;
 
-    String getBrowser() {
+    public String getBrowser() {
         return this.browser;
     }
 
@@ -16,7 +16,7 @@ class Config {
         this.browser = browser;
     }
 
-    String getSongsDirectory() {
+    public String getSongsDirectory() {
         return this.songsDirectory;
     }
 
@@ -24,7 +24,7 @@ class Config {
         this.songsDirectory = songsDirectory;
     }
 
-    String getEMail() {
+    public String getEMail() {
         return eMail;
     }
 
@@ -32,7 +32,7 @@ class Config {
         this.eMail = eMail;
     }
 
-    String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -40,7 +40,7 @@ class Config {
         this.password = password;
     }
 
-    String getScriptsDirectory() {
+    public String getScriptsDirectory() {
         return scriptsDirectory;
     }
 
@@ -48,7 +48,7 @@ class Config {
         this.scriptsDirectory = scriptsDirectory;
     }
 
-    boolean[] getCategories() {
+    public boolean[] getCategories() {
         return categories;
     }
 
