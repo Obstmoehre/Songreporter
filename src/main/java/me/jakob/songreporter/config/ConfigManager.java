@@ -1,15 +1,13 @@
 package me.jakob.songreporter.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class ConfigManager {
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final File configFile = new File(System.getProperty("user.home") + "/Songreporter/config.json");
     private Config config;
     private static ConfigManager instance;
@@ -148,5 +146,24 @@ public class ConfigManager {
 
     public void setCategories(boolean[] categories) {
         this.config.setCategories(categories);
+    }
+
+    public void setSaveCredentialsMode(boolean shouldSave) {
+        if (!shouldSave) {
+            this.gson = new GsonBuilder().setPrettyPrinting().setExclusionStrategies(new ExclusionStrategy() {
+                @Override
+                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+                    return fieldAttributes.getName().equals("eMail") ||
+                            fieldAttributes.getName().equals("password");
+                }
+
+                @Override
+                public boolean shouldSkipClass(Class<?> aClass) {
+                    return false;
+                }
+            }).create();
+        } else {
+            this.gson = new GsonBuilder().setPrettyPrinting().create();
+        }
     }
 }

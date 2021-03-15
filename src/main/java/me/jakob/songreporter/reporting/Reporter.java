@@ -33,10 +33,8 @@ public class Reporter {
     private final CCLIReadingService ccliReadingService;
     private final SeleniumService seleniumService;
     private RESTService restService;
-    private final boolean testMode;
 
-    public Reporter(boolean testMode) {
-        this.testMode = testMode;
+    public Reporter() {
         this.seleniumService = SeleniumService.getInstance();
         this.ccliReadingService = new CCLIReadingService();
     }
@@ -176,52 +174,6 @@ public class Reporter {
             summaryGUIController.summarise(songList, websiteChangeFlag);
 
             summaryStage.show();
-        }
-    }
-
-    private void waitForLoadingScreen() {
-        int tries = 0;
-        int maxTries = 300;
-
-        while (tries < maxTries) {
-            try {
-                driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"));
-                tries = maxTries;
-            } catch (NoSuchElementException e) {
-                tries++;
-                if (tries >= maxTries) {
-                    error(e, "timeout while waiting for loading screen");
-                }
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException interruptedException) {
-                    error(interruptedException, "sleep command failed");
-                }
-            }
-        }
-
-        try {
-            while (driver.findElement(By.xpath("//*[@id=\"page-loading-overlay\"]"))
-                    .getAttribute("aria-busy").equals("true")) {
-                //noinspection BusyWait
-                Thread.sleep(50);
-            }
-        } catch (NoSuchElementException e) {
-            error(e, "loading screen not found");
-        } catch (InterruptedException e) {
-            error(e, "sleep command failed");
-        }
-    }
-
-    private boolean checkLogin() {
-        try {
-            return !driver.findElement(By.xpath("//*[@id=\"sign-into-account\"]/div[1]/div/div/p[2]"))
-                    .getText().contains("Die E-Mailadresse oder das Passwort wurden nicht gefunden.");
-        } catch (NoSuchElementException e) {
-            websiteChangeFlag = true;
-            return true;
-        } catch (StaleElementReferenceException e) {
-            return true;
         }
     }
 }

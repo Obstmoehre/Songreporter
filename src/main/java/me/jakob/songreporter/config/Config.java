@@ -5,6 +5,7 @@ class Config {
     private String songsDirectory;
     private String scriptsDirectory;
     private String eMail;
+    private String password;
     private boolean[] categories;
 
     String getBrowser() {
@@ -29,6 +30,14 @@ class Config {
 
     void setEMail(String eMail) {
         this.eMail = eMail;
+    }
+
+    String getPassword() {
+        return password;
+    }
+
+    void setPassword(String password) {
+        this.password = password;
     }
 
     String getScriptsDirectory() {
