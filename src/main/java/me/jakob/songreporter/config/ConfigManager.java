@@ -2,6 +2,8 @@ package me.jakob.songreporter.config;
 
 import com.google.gson.*;
 import me.jakob.songreporter.GUI.elements.ErrorGUI;
+import me.jakob.songreporter.reporting.enums.Category;
+import me.jakob.songreporter.reporting.objects.Categories;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -104,7 +106,7 @@ public class ConfigManager {
         }
 
         if (config.getCategories() == null) {
-            config.setCategories(new boolean[]{false, false, false, false});
+            config.setCategories(new Categories());
         }
     }
 
@@ -132,8 +134,32 @@ public class ConfigManager {
         this.config.setScriptsDirectory(scriptsDirectory);
     }
 
-    public void setCategories(boolean[] categories) {
+    public void setCategories(Categories categories) {
         this.config.setCategories(categories);
+    }
+
+    public void setCategory(Category category, boolean value) {
+        String stringValue;
+        if (value) {
+            stringValue = "1";
+        } else {
+            stringValue = "0";
+        }
+
+        switch (category) {
+            case PRINT:
+                this.config.getCategories().setPrint(stringValue);
+                break;
+            case DIGITAL:
+                this.config.getCategories().setDigital(stringValue);
+                break;
+            case STREAM:
+                this.config.getCategories().setRecord(stringValue);
+                break;
+            case TRANSLATION:
+                this.config.getCategories().setTranslate(stringValue);
+                break;
+        }
     }
 
     public void setSaveCredentialsMode(boolean shouldSave) {

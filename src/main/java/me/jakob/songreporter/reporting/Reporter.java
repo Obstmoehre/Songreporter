@@ -76,8 +76,11 @@ public class Reporter {
             loginSuccess = false;
         }
 
+        HashMap<String, String> cookies = seleniumService.getCookies();
+        seleniumService.stop();
+
         if (loginSuccess) {
-            RESTService restService = new RESTService(seleniumService.getCookies());
+            RESTService restService = new RESTService(cookies);
             for (int i = 0; i < songs.size(); i++) {
                 Song song = songs.get(i);
                 if (song.getCcliSongNo() == null) {
@@ -92,7 +95,7 @@ public class Reporter {
                 songs.set(i, song);
             }
 
-            HashMap<Song, Integer> responseCodes = restService.reportSongs(songs);
+            HashMap<Song, Integer> responseCodes = restService.reportSongs(songs, config.getCategories());
 
             // reporting the songs out of the list of CCLI songnumbers
             for (Song song : songs) {

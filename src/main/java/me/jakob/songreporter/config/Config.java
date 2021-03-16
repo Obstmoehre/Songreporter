@@ -1,12 +1,14 @@
 package me.jakob.songreporter.config;
 
+import me.jakob.songreporter.reporting.objects.Categories;
+
 public class Config {
     private String browser;
     private String songsDirectory;
     private String scriptsDirectory;
     private String eMail;
     private String password;
-    private boolean[] categories;
+    private Categories categories;
 
     public String getBrowser() {
         return this.browser;
@@ -48,11 +50,11 @@ public class Config {
         this.scriptsDirectory = scriptsDirectory;
     }
 
-    public boolean[] getCategories() {
+    public Categories getCategories() {
         return categories;
     }
 
-    void setCategories(boolean[] categories) {
+    void setCategories(Categories categories) {
         this.categories = categories;
     }
 }

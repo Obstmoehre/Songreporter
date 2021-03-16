@@ -4,6 +4,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import me.jakob.songreporter.reporting.objects.Categories;
 import me.jakob.songreporter.reporting.objects.ReportPayload;
 import me.jakob.songreporter.reporting.objects.Song;
 import okhttp3.*;
@@ -71,7 +72,7 @@ public class RESTService {
         return this.gson.fromJson(json, Song.class);
     }
 
-    public HashMap<Song, Integer> reportSongs(ArrayList<Song> songs) {
+    public HashMap<Song, Integer> reportSongs(ArrayList<Song> songs, Categories categories) {
         HashMap<Song, Integer> responseCodes = new HashMap<>();
         String requestVerificationToken = getRequestVerificationToken(cookies);
         if (requestVerificationToken == null || requestVerificationToken.equals("")) {
@@ -91,7 +92,7 @@ public class RESTService {
 
         for (Song song : songs) {
             if (!song.isPublicDomain() && !(song.getCcliSongNo() == null)) {
-                String reportPayload = this.gson.toJson(new ReportPayload(song));
+                String reportPayload = this.gson.toJson(new ReportPayload(song, categories)).replace("\"0\"", "0");
                 Request request = new Request.Builder()
                         .url("https://reporting.ccli.com/api/report")
                         .addHeader("Accept", "application/json, text/plain, */*")

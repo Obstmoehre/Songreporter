@@ -10,12 +10,12 @@ public class ReportPayload {
     String[] rehearsals;
     String[] cslps;
 
-    public ReportPayload(Song song) {
+    public ReportPayload(Song song, Categories categories) {
         this.songs = new Song[]{song};
         this. id = "";
         this. date = "";
         this.recordedBy = new RecordedBy();
-        this.lyrics = new Categories(0, "1", "1", 0);
+        this.lyrics = categories;
         this.sheetMusic = new String[0];
         this.rehearsals = new String[0];
         this.cslps = new String[0];

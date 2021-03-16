@@ -17,7 +17,6 @@ import java.util.HashMap;
 
 public class SeleniumService {
     private WebDriver driver;
-    private String browser;
     private static SeleniumService instance;
     private boolean initiated;
     private HashMap<String, String> cookies;
@@ -34,19 +33,6 @@ public class SeleniumService {
     }
 
     public void init(String browser) {
-        this.browser = browser;
-        this.initiated = true;
-    }
-
-    public HashMap<String, String> getCookies() {
-        return cookies;
-    }
-
-    public boolean login(String eMail, String password) throws CCLILoginException, InterruptedException, ServiceNotInitializedException {
-        if (!this.initiated) {
-            throw new ServiceNotInitializedException();
-        }
-
         switch (browser) {
             case "Chrome":
                 WebDriverManager.chromedriver().setup();
@@ -60,6 +46,22 @@ public class SeleniumService {
                 WebDriverManager.operadriver().setup();
                 this.driver = new OperaDriver();
                 break;
+        }
+        this.initiated = true;
+    }
+
+    public void stop() {
+        driver.close();
+        this.initiated = false;
+    }
+
+    public HashMap<String, String> getCookies() {
+        return cookies;
+    }
+
+    public boolean login(String eMail, String password) throws CCLILoginException, InterruptedException, ServiceNotInitializedException {
+        if (!this.initiated) {
+            throw new ServiceNotInitializedException();
         }
 
         int retries = 0;

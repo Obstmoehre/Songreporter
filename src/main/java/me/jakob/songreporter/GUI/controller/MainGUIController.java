@@ -9,6 +9,8 @@ import me.jakob.songreporter.GUI.elements.FileSelector;
 import me.jakob.songreporter.config.Config;
 import me.jakob.songreporter.config.ConfigManager;
 import me.jakob.songreporter.reporting.Reporter;
+import me.jakob.songreporter.reporting.enums.Category;
+import me.jakob.songreporter.reporting.objects.Categories;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +47,8 @@ public class MainGUIController implements Initializable {
             } else if (eMailField.getText().equals(this.config.getEMail())) {
                 this.configManager.setSaveCredentialsMode(false);
             }
+            this.configManager.setEMail(this.eMailField.getText());
+            this.configManager.setPassword(this.passwordField.getText());
             this.configManager.saveConfig();
             this.reporter.report(this.config, this.script);
 
@@ -156,15 +160,20 @@ public class MainGUIController implements Initializable {
         }
     }
 
-    public void onCategoriesChange() {
-        int i = 0;
-        boolean[] categories = new boolean[4];
-        for (CheckBox categoryBox : this.categoryBoxes) {
-            categories[i] = categoryBox.isSelected();
-            i++;
-        }
+    public void onPrintChange() {
+        configManager.setCategory(Category.PRINT, this.printBox.isSelected());
+    }
 
-        this.configManager.setCategories(categories);
+    public void onDigitalChange() {
+        configManager.setCategory(Category.DIGITAL, this.digitalBox.isSelected());
+    }
+
+    public void onStreamChange() {
+        configManager.setCategory(Category.STREAM, this.streamBox.isSelected());
+    }
+
+    public void onTranslateChange() {
+        configManager.setCategory(Category.TRANSLATION, this.translationBox.isSelected());
     }
 
     public void onSaveConfigClick() {
@@ -211,10 +220,11 @@ public class MainGUIController implements Initializable {
         }
 
         this.categoryBoxes = new CheckBox[]{this.printBox, this.digitalBox, this.streamBox, this.translationBox};
-        boolean[] categories = this.config.getCategories();
-        for (int i = 0; i < 4; i++) {
-            categoryBoxes[i].setSelected(categories[i]);
-        }
+        Categories categories = this.config.getCategories();
+        this.printBox.setSelected(categories.getPrint().equals("1"));
+        this.digitalBox.setSelected(categories.getDigital().equals("1"));
+        this.streamBox.setSelected(categories.getRecord().equals("1"));
+        this.translationBox.setSelected(categories.getTranslate().equals("1"));
 
         if (this.config.getScriptsDirectory() != null) {
             script = getLatestScript();
