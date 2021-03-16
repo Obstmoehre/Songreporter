@@ -25,7 +25,6 @@ public class MainGUIController implements Initializable {
     private final ConfigManager configManager = ConfigManager.getInstance();
     private final Config config = configManager.getConfig();
     private final Reporter reporter = new Reporter();
-    private CheckBox[] categoryBoxes;
     private File script;
 
     public TextField eMailField;
@@ -172,7 +171,7 @@ public class MainGUIController implements Initializable {
         configManager.setCategory(Category.STREAM, this.streamBox.isSelected());
     }
 
-    public void onTranslateChange() {
+    public void onTranslationChange() {
         configManager.setCategory(Category.TRANSLATION, this.translationBox.isSelected());
     }
 
@@ -219,7 +218,6 @@ public class MainGUIController implements Initializable {
             browserButton.setText(this.config.getBrowser());
         }
 
-        this.categoryBoxes = new CheckBox[]{this.printBox, this.digitalBox, this.streamBox, this.translationBox};
         Categories categories = this.config.getCategories();
         this.printBox.setSelected(categories.getPrint().equals("1"));
         this.digitalBox.setSelected(categories.getDigital().equals("1"));
