@@ -2,7 +2,7 @@ package me.jakob.songreporter.reporting.exceptions;
 
 import me.jakob.songreporter.reporting.enums.WebsiteElement;
 
-public class WebsiteChangedException extends Exception {
+public class WebsiteChangedException extends CCLILoginException {
 
     WebsiteElement changedElement;
     public WebsiteChangedException(WebsiteElement changedElement) {

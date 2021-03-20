@@ -6,10 +6,11 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import me.jakob.songreporter.GUI.elements.DirectorySelector;
 import me.jakob.songreporter.GUI.elements.FileSelector;
-import me.jakob.songreporter.config.ConfigLoader;
+import me.jakob.songreporter.config.Config;
 import me.jakob.songreporter.config.ConfigManager;
-import me.jakob.songreporter.reporting.CCLIReader;
 import me.jakob.songreporter.reporting.Reporter;
+import me.jakob.songreporter.reporting.enums.Category;
+import me.jakob.songreporter.reporting.objects.Categories;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,10 +22,9 @@ import java.util.ResourceBundle;
 
 public class MainGUIController implements Initializable {
 
-    private final ConfigManager configManager = new ConfigLoader().load();
+    private final ConfigManager configManager = ConfigManager.getInstance();
+    private final Config config = configManager.getConfig();
     private final Reporter reporter = new Reporter();
-    private final CCLIReader ccliReader = new CCLIReader();
-    private CheckBox[] categoryBoxes;
     private File script;
 
     public TextField eMailField;
@@ -41,21 +41,15 @@ public class MainGUIController implements Initializable {
 
     public void onReportButtonClick() {
         if (checkInformation()) {
-            String eMail = eMailField.getText();
-            String password = passwordField.getText();
             if (saveCheckBox.isSelected()) {
-                this.configManager.setEMail(eMail);
-            } else if (eMailField.getText().equals(this.configManager.getEMail())) {
-                this.configManager.setEMail(null);
+                this.configManager.setSaveCredentialsMode(true);
+            } else if (eMailField.getText().equals(this.config.getEMail())) {
+                this.configManager.setSaveCredentialsMode(false);
             }
+            this.configManager.setEMail(this.eMailField.getText());
+            this.configManager.setPassword(this.passwordField.getText());
             this.configManager.saveConfig();
-
-            try {
-                reporter.report(eMail, password, this.configManager.getBrowser(), this.script, this.configManager.getCategories(),
-                        ccliReader.read(this.configManager.getSongsDirectory(), this.script));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.reporter.report(this.config, this.script);
 
             if (checkScript(script)) {
                 scriptLabel.setStyle("-fx-text-fill: #58a832");
@@ -65,7 +59,7 @@ public class MainGUIController implements Initializable {
 
     private boolean checkInformation() {
         boolean vaildInformation = true;
-        String browser = this.configManager.getBrowser();
+        String browser = this.config.getBrowser();
         Label[] directoryLabels = {this.songsLabel, this.scriptsLabel};
 
         if (browser == null || !(browser.equals("Chrome") || browser.equals("Firefox") || browser.equals("Opera"))) {
@@ -97,7 +91,7 @@ public class MainGUIController implements Initializable {
     }
 
     public void onScriptButtonClick() {
-        File script = new FileSelector("Choose Flowsheet", configManager.getScriptsDirectory()).select();
+        File script = new FileSelector("Choose Flowsheet", config.getScriptsDirectory()).select();
 
         if (!checkScript(script) && script != null) {
             setLabelText(scriptLabel, script.getName());
@@ -165,15 +159,20 @@ public class MainGUIController implements Initializable {
         }
     }
 
-    public void onCategoriesChange() {
-        int i = 0;
-        boolean[] categories = new boolean[4];
-        for (CheckBox categoryBox : this.categoryBoxes) {
-            categories[i] = categoryBox.isSelected();
-            i++;
-        }
+    public void onPrintChange() {
+        configManager.setCategory(Category.PRINT, this.printBox.isSelected());
+    }
 
-        this.configManager.setCategories(categories);
+    public void onDigitalChange() {
+        configManager.setCategory(Category.DIGITAL, this.digitalBox.isSelected());
+    }
+
+    public void onStreamChange() {
+        configManager.setCategory(Category.STREAM, this.streamBox.isSelected());
+    }
+
+    public void onTranslationChange() {
+        configManager.setCategory(Category.TRANSLATION, this.translationBox.isSelected());
     }
 
     public void onSaveConfigClick() {
@@ -198,7 +197,7 @@ public class MainGUIController implements Initializable {
 
     private File getLatestScript() {
         LocalDate date = LocalDate.now();
-        File[] scripts = new File(configManager.getScriptsDirectory()).listFiles();
+        File[] scripts = new File(this.config.getScriptsDirectory()).listFiles();
         if (scripts != null) {
             for (File script : scripts) {
                 for (int i = 0; i < 7; i++) {
@@ -215,37 +214,37 @@ public class MainGUIController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         addBrowserButtonListeners();
-        if (this.configManager.getBrowser() != null) {
-            browserButton.setText(this.configManager.getBrowser());
+        if (this.config.getBrowser() != null) {
+            browserButton.setText(this.config.getBrowser());
         }
 
-        this.categoryBoxes = new CheckBox[]{this.printBox, this.digitalBox, this.streamBox, this.translationBox};
-        boolean[] categories = this.configManager.getCategories();
-        for (int i = 0; i < 4; i++) {
-            categoryBoxes[i].setSelected(categories[i]);
-        }
+        Categories categories = this.config.getCategories();
+        this.printBox.setSelected(categories.getPrint().equals("1"));
+        this.digitalBox.setSelected(categories.getDigital().equals("1"));
+        this.streamBox.setSelected(categories.getRecord().equals("1"));
+        this.translationBox.setSelected(categories.getTranslate().equals("1"));
 
-        if (this.configManager.getScriptsDirectory() != null) {
+        if (this.config.getScriptsDirectory() != null) {
             script = getLatestScript();
         }
         if (script != null) {
             setLabelText(scriptLabel, script.getName());
         }
 
-        if (this.configManager.getScriptsDirectory() != null) {
-            setLabelText(scriptsLabel, this.configManager.getScriptsDirectory());
+        if (this.config.getScriptsDirectory() != null) {
+            setLabelText(scriptsLabel, this.config.getScriptsDirectory());
         } else {
             setLabelText(scriptsLabel, "none");
         }
 
-        if (this.configManager.getSongsDirectory() != null) {
-            setLabelText(songsLabel, this.configManager.getSongsDirectory());
+        if (this.config.getSongsDirectory() != null) {
+            setLabelText(songsLabel, this.config.getSongsDirectory());
         } else {
             setLabelText(songsLabel, "none");
         }
 
-        if (this.configManager.getEMail() != null) {
-            eMailField.setText(this.configManager.getEMail());
+        if (this.config.getEMail() != null) {
+            eMailField.setText(this.config.getEMail());
         }
     }
 

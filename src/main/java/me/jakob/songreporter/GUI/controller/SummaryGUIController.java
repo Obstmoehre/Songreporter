@@ -13,16 +13,7 @@ public class SummaryGUIController {
 
     public ListView<VBox> summaryList;
 
-    public void summarise(ArrayList<Song> songList, boolean websiteChangeFlag) {
-        if (websiteChangeFlag) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Website Change!");
-            alert.setHeaderText("Website code changed!");
-            alert.setContentText("There are changes in the websites code not necessarily affecting your reporting" +
-                    " directly but the accuracy of the reasons given for failures while reporting");
-            alert.showAndWait();
-        }
-
+    public void summarise(ArrayList<Song> songList) {
         for (Song song : songList) {
             VBox songBox = new VBox();
 
@@ -36,10 +27,10 @@ public class SummaryGUIController {
             Label titleLabel;
             Label reasonLabel = null;
 
-            if (song.getCcliNumber() == null) {
-                titleLabel = new Label(song.getName() + " (CCLI: No CCLI number found)");
+            if (song.getCcliSongNo() == null) {
+                titleLabel = new Label(song.getTitle() + " (CCLI: No CCLI number found)");
             } else {
-                titleLabel = new Label(song.getName() + " (CCLI: " + song.getCcliNumber() + ")");
+                titleLabel = new Label(song.getTitle() + " (CCLI: " + song.getCcliSongNo() + ")");
             }
 
             titleLabel.setScaleX(1.5);
