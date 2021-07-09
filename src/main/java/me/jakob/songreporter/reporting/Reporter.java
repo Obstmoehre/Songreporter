@@ -87,11 +87,11 @@ public class Reporter {
                     song.markUnreported(Reason.NO_CCLI_SONGNUMBER);
                 } else {
                     song = restService.fetchSongdetails(song.getCcliSongNo());
+                    if (song.isPublicDomain()) {
+                        song.markUnreported(Reason.SONG_NOT_LICENSED);
+                    }
                 }
 
-                if (song.isPublicDomain()) {
-                    song.markUnreported(Reason.SONG_NOT_LICENSED);
-                }
                 songs.set(i, song);
             }
 
