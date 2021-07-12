@@ -60,6 +60,14 @@ public class SummaryGUIController {
                         titleLabel.setStyle("-fx-text-fill: #ff0000");
                         break;
                     }
+                    case ERRORCODE:
+                    case FAILED_REQUEST:
+                    case NO_RESPONSE_BODY:
+                    case NO_REQUEST_VERIFICATION_TOKEN: {
+                        reasonLabel = new Label("An internal HTTP Error occurred");
+                        titleLabel.setStyle("-fx-text-fill: #ff0000");
+                        break;
+                    }
                     default: {
                         reasonLabel = new Label("Unknown reason");
                     }
