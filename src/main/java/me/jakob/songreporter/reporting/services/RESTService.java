@@ -74,7 +74,7 @@ public class RESTService {
 
     public HashMap<Song, Integer> reportSongs(ArrayList<Song> songs, Categories categories) {
         HashMap<Song, Integer> responseCodes = new HashMap<>();
-        String requestVerificationToken = getRequestVerificationToken(cookies);
+        String requestVerificationToken = getRequestVerificationToken();
         if (requestVerificationToken == null || requestVerificationToken.equals("")) {
             for (Song song : songs) {
                 responseCodes.put(song, -3);
@@ -109,7 +109,7 @@ public class RESTService {
                         .addHeader("Sec-Fetch-Dest", "empty")
                         .addHeader("dnt", "1")
                         .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36")
-                        .addHeader("RequestVerificationToken", requestVerificationToken) //verification token still missing here
+                        .addHeader("RequestVerificationToken", requestVerificationToken)
                         .post(RequestBody.create(MediaType.parse("application/json"), reportPayload))
                         .build();
 
@@ -132,7 +132,7 @@ public class RESTService {
         return responseCodes;
     }
 
-    private String getRequestVerificationToken(HashMap<String, String> cookies) {
+    private String getRequestVerificationToken() {
         String requestVerificationToken;
 
         ArrayList<String> cookieNames = new ArrayList<>();

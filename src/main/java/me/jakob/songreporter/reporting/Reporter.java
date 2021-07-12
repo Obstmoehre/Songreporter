@@ -64,7 +64,7 @@ public class Reporter {
                 for (Song song : songs) {
                     song.markUnreported(Reason.LOGIN_TIMEOUT);
                 }
-                error(e, "Timed out while waiting for a page. Please check your");
+                error(e, "Timed out while waiting for a page. Please check your internet connection.");
             } else {
                 error(e, "Unknown Error occurred");
             }
@@ -103,17 +103,23 @@ public class Reporter {
                     case 200:
                         song.markReported();
                         break;
+                    case 0:
+                        break;
                     case -1:
                         song.markUnreported(Reason.FAILED_REQUEST);
+                        error(-1, "Failed to execute Request.");
                         break;
                     case -2:
                         song.markUnreported(Reason.NO_RESPONSE_BODY);
+                        error(-2, "No Response Body.");
                         break;
                     case -3:
                         song.markUnreported(Reason.NO_REQUEST_VERIFICATION_TOKEN);
+                        error(-3, "Missing Request Verification Token");
                         break;
                     default:
                         song.markUnreported(Reason.ERRORCODE);
+                        error(responseCodes.get(song), "");
                         break;
                 }
             }
@@ -157,6 +163,26 @@ public class Reporter {
             }
             errorWriter.flush();
             e.printStackTrace();
+        } catch (IOException e1) {
+            new ErrorGUI().showNewErrorMessage("Error logging failed");
+        }
+    }
+
+    private void error(int errorCode, String message) {
+        try {
+            if (!errorLog.exists()) {
+                if (!(errorLog.createNewFile())) {
+                    new ErrorGUI().showNewErrorMessage("Failed to create new error log.");
+                }
+            }
+
+            String seperator = "------------------------------------------";
+            errorWriter.write(seperator + new Date().toString() + seperator + "\n\n");
+            errorWriter.write("HTTP Error while reporting. Code:" + errorCode + "\n\n");
+            if (!message.equals("")) {
+                errorWriter.write(message + "\n\n");
+            }
+            errorWriter.flush();
         } catch (IOException e1) {
             new ErrorGUI().showNewErrorMessage("Error logging failed");
         }
