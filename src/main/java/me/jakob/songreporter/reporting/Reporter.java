@@ -33,6 +33,8 @@ public class Reporter {
         this.seleniumService = SeleniumService.getInstance();
     }
 
+    //test
+
     public void report(Config config, File script) {
         try {
             errorWriter = new FileWriter(errorLog, true);
