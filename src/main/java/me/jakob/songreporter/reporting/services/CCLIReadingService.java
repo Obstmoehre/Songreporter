@@ -27,7 +27,10 @@ public class CCLIReadingService {
                     songNameBuilder.append(scriptLine, 0, scriptLine.length()-2);
                 } else if (scriptLine.contains("end") && songNameBuilder.toString().endsWith(".sng")) {
                     String songName = songNameBuilder.toString();
-                    songs.add(new Song(songName.substring(0, songName.length()-4)));
+                    Song song = new Song(songName.substring(0, songName.length()-4));
+                    if (!songs.contains(song)) {
+                        songs.add(song);
+                    }
                     songNameBuilder = new StringBuilder();
                 } else if (scriptLine.endsWith("g")) {
                     songNameBuilder.append(scriptLine);

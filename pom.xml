@@ -6,7 +6,7 @@
 
     <groupId>de.jakob</groupId>
     <artifactId>Songreporter</artifactId>
-    <version>1.12.0</version>
+    <version>1.12.1</version>
 
     <build>
         <plugins>
